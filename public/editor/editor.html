@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RTF Editor</title>
+    <link href="http_cdn.quill_js.com_1.3.7_quill.snow.css" rel="stylesheet">
+    <link href="editor/editor.css" rel="stylesheet">
+    <style>
+    </style>
+</head>
+<body>
+<h1>RTF Editor</h1>
+<div id="divForm"></div>
+
+
+<!-- 页码 -->
+<div class="pagination-controls">
+    <button onclick="goToPageOffset(-1)" id="prev-page-btn">上一页</button>
+    <label for="page-input"></label><input type="text" pattern="\d*" id="page-input" min="1" placeholder="页码" style="width: 5em;">
+    <span id="total-pages">/ 总页数</span>
+    <button onclick="goToPageOffset(1)" id="next-page-btn">下一页</button>
+    <button onclick="insertPageAtEndOf()">新增页面</button>
+    <button onclick="deletePageAt()">删除页面</button>
+    <button onclick="autoCutPage()">自动分页</button>
+    <label for="auto-cut-input"></label><input id="auto-cut-input" min="1" value="5000" style="width: 4em;" type="text" pattern="\d*">
+</div>
+
+
+<!-- Quill Editor -->
+<div id="toolbar"></div>
+<div id="editor-container"></div>
+
+<!-- Actions -->
+<button onclick="updatePage()">提交更改</button>
+
+<script src="http_cdn.quill_js.com_1.3.7_quill.js"></script>
+<script src="quillInit.js"></script>
+<script src="pageImpl.js"></script>
+<script>
+    const docId = getQueryParameter('docId'); // 从 URL 中获取 docId
+    const titleId = getQueryParameter('titleId'); // 从 URL 中获取 titleId
+    const page = getQueryParameter('page'); // 从 URL 中获取 lastPage
+    window.addEventListener('unload', function() {
+        // 执行你的清理操作或保存状态的函数
+        updatePage();
+    });
+    document.getElementById('page-input').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            goToPage(docId, titleId, page);
+        }
+    });
+    window.addEventListener('DOMContentLoaded', () => {
+        if (!docId || !titleId || !page) {
+            document.getElementById('pageList').innerHTML = '<li>缺少 ID 位置，请检查 URL。</li>';
+            return;
+        }
+        async function loadPage(doc_id, title_id, page_num){
+            try {
+                let page=parseInt(page_num);
+                if (page <= 1) {
+                    page=1;
+                    document.getElementById('prev-page-btn').disabled = true;
+                }
+                const totalPages = await getTotalPages(doc_id, title_id);
+                if (page>=document.getElementById('total-pages').value){
+                    page=document.getElementById('total-pages').value;
+                    document.getElementById('next-page-btn').disabled = true;
+                }
+                document.getElementById('page-input').textContent = page.toString();
+                const response = await fetch(`/page?doc_id=${doc_id}&title_id=${title_id}&page=${page}`);
+                if (!response.ok) {
+                    quill.setText("加载页面失败！" + response.json().message);
+                    quill.disable();
+                    return;
+                }
+                const data = await response.json();
+                const rtfBytes = data.rtf_bytes;
+                if (rtfBytes) quill.setContents(JSON.parse(rtfBytes));
+                else quill.setText(data.text);
+                const last_local=data.last_local;
+                if (last_local) quill.setSelection(last_local, 0);
+                document.getElementById('page-input').value = `${page_num}`;
+                quill.enable();
+                await updateTitleLastPage(doc_id, title_id, page_num);
+            } catch (error) {
+                console.error('Error loading last page:', error);
+            }
+        }
+        loadPage(docId, titleId, page); // 根据 docId, titleId, lastPage 加载页面
+    });
+
+</script>
+</body>
+</html>
+
+
+

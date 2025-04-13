@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>标题列表</title>
+    <link href="/title/titleIndex.css" rel="stylesheet">
+    <style>
+
+    </style>
+</head>
+<body>
+<h1>标题列表</h1>
+
+<!-- 增加标题按钮 -->
+<button id="addTitleButton">增加标题</button>
+
+<!-- 标题列表 -->
+<ul id="titleList" class="title-list"></ul>
+
+<!-- 增加标题模态框 -->
+<div id="addTitleModal" class="modal">
+    <div class="modal-content">
+        <h2>新建标题</h2>
+        <label for="newTitleInput"></label><input type="text" id="newTitleInput" placeholder="请输入标题名">
+        <div>
+            <button id="confirmAddTitle" class="confirm">确定</button>
+            <button id="cancelAddTitle" class="cancel">取消</button>
+        </div>
+    </div>
+</div>
+
+<!-- 修改标题模态框 -->
+<div id="editTitleModal" class="modal">
+    <div class="modal-content">
+        <h2>修改标题</h2>
+        <label for="editTitleId">标题 ID：</label>
+        <input type="text" id="editTitleId" disabled>
+        <label for="editTitleName">标题名称：</label>
+        <input type="text" id="editTitleName" placeholder="请输入新的标题名">
+        <div>
+            <button id="confirmEditTitle" class="confirm">确定</button>
+            <button id="cancelEditTitle" class="cancel">取消</button>
+        </div>
+    </div>
+</div>
+
+<!-- 删除标题模态框 -->
+<div id="deleteTitleModal" class="modal">
+    <div class="modal-content">
+        <h2>删除标题</h2>
+        <p id="deleteTitleMessage">确定要删除此标题吗？</p>
+        <div>
+            <button id="confirmDeleteTitle" class="confirm">确定</button>
+            <button id="cancelDeleteTitle" class="cancel">取消</button>
+        </div>
+    </div>
+</div>
+
+<!-- 右键菜单 -->
+<div id="contextMenu" class="context-menu">
+    <ul>
+        <li id="editTitleOption">修改标题</li>
+        <li id="deleteTitleOption">删除标题</li>
+    </ul>
+</div>
+
+<script src="/title/titleImpl.js"></script>
+<script>
+    const docId = getQueryParameter('docId');
+    if (!docId) {
+        document.getElementById('titleList').innerHTML = '<li>缺少文档 ID，请检查 URL。</li>';
+    } else {
+        fetchTitleList(docId);
+    }
+
+    let currentTitleId = null;
+    let currentTitleName = null;
+
+    // 获取 URL 中的 docId 参数
+    function getQueryParameter(paramName) {
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        return urlParams.get(paramName);
+    }
+
+    // 渲染标题列表
+    function renderTitleList(titles) {
+        const titleListElement = document.getElementById('titleList');
+        titleListElement.innerHTML = '';
+
+        if (titles.length === 0) {
+            titleListElement.innerHTML = '<li>暂无标题</li>';
+            return;
+        }
+
+        titles.forEach(title => {
+            const listItem = document.createElement('li');
+            listItem.className = 'title-item';
+            listItem.textContent = title.title_name;
+
+            listItem.addEventListener('click', () => {
+                window.location.href = `/pageIndex?docId=${docId}&titleId=${title.title_id}&lastPage=${title.last_page}`;
+            });
+
+            listItem.dataset.titleId = title.title_id;
+            listItem.dataset.titleName = title.title_name;
+
+            titleListElement.appendChild(listItem);
+        });
+    }
+
+    // 错误处理函数
+    function handleError(prefix, error, message) {
+        console.error(prefix, error);
+        if (message) {
+            alert(message);
+        } else {
+            alert(error.message);
+        }
+    }
+
+    const addTitleButton = document.getElementById('addTitleButton');
+    const addTitleModal = document.getElementById('addTitleModal');
+    const confirmAddTitle = document.getElementById('confirmAddTitle');
+    const cancelAddTitle = document.getElementById('cancelAddTitle');
+    const newTitleInput = document.getElementById('newTitleInput');
+
+    const contextMenu = document.getElementById('contextMenu');
+    const editTitleOption = document.getElementById('editTitleOption');
+    const deleteTitleOption = document.getElementById('deleteTitleOption');
+
+    const editTitleModal = document.getElementById('editTitleModal');
+    const editTitleId = document.getElementById('editTitleId');
+    const editTitleName = document.getElementById('editTitleName');
+    const confirmEditTitle = document.getElementById('confirmEditTitle');
+    const cancelEditTitle = document.getElementById('cancelEditTitle');
+
+    // 删除标题模态框
+    const deleteTitleModal = document.getElementById('deleteTitleModal');
+    const confirmDeleteTitle = document.getElementById('confirmDeleteTitle');
+    const cancelDeleteTitle = document.getElementById('cancelDeleteTitle');
+
+    // 页面加载时获取 docId 并加载标题列表
+    window.addEventListener('DOMContentLoaded', () => {
+        // 绑定增加标题按钮事件
+        addTitleButton.addEventListener('click', () => {
+            addTitleModal.style.display = 'block';
+        });
+        cancelAddTitle.addEventListener('click', () => {
+            addTitleModal.style.display = 'none';
+            newTitleInput.value = '';
+        });
+        confirmAddTitle.addEventListener('click', async () => {
+            const titleName = newTitleInput.value.trim();
+            if (!titleName) {
+                alert('标题名不能为空！');
+                return;
+            }
+
+            try {
+                await insertTitle(docId, titleName);
+                await fetchTitleList(docId);
+                addTitleModal.style.display = 'none';
+                newTitleInput.value = '';
+            } catch (error) {
+                console.error('添加标题失败:', error);
+                alert('添加标题失败，请稍后重试。');
+            }
+        });
+
+        // 右键菜单相关逻辑
+        document.addEventListener('contextmenu', (event) => {
+            const target = event.target;
+            if (target.classList.contains('title-item')) {
+                event.preventDefault();
+
+                currentTitleId = target.dataset.titleId;
+                currentTitleName = target.dataset.titleName;
+
+                contextMenu.style.display = 'block';
+                contextMenu.style.left = `${event.pageX}px`;
+                contextMenu.style.top = `${event.pageY}px`;
+            } else {
+                contextMenu.style.display = 'none';
+            }
+        });
+        document.addEventListener('click', () => {
+            contextMenu.style.display = 'none';
+        });
+
+        // 修改标题模态框
+        editTitleOption.addEventListener('click', () => {
+            editTitleId.value = currentTitleId;
+            editTitleName.value = currentTitleName;
+            editTitleModal.style.display = 'block';
+            contextMenu.style.display = 'none';
+        });
+        cancelEditTitle.addEventListener('click', () => {
+            editTitleModal.style.display = 'none';
+            editTitleId.value = '';
+            editTitleName.value = '';
+        });
+        confirmEditTitle.addEventListener('click', async () => {
+            const newTitleName = editTitleName.value.trim();
+            if (!newTitleName) {
+                alert('标题名不能为空！');
+                return;
+            }
+
+            try {
+                await updateTitle(docId, currentTitleId, newTitleName);
+                await fetchTitleList(docId);
+                editTitleModal.style.display = 'none';
+            } catch (error) {
+                console.error('修改标题失败:', error);
+                alert('修改标题失败，请稍后重试。');
+            }
+        });
+
+        deleteTitleOption.addEventListener('click', () => {
+            document.getElementById('deleteTitleMessage').textContent = `确定要删除标题 "${currentTitleName}" 吗？`;
+            deleteTitleModal.style.display = 'block';
+            contextMenu.style.display = 'none';
+        });
+        cancelDeleteTitle.addEventListener('click', () => {
+            deleteTitleModal.style.display = 'none';
+        });
+        confirmDeleteTitle.addEventListener('click', async () => {
+            try {
+                await deleteTitle(docId, currentTitleId);
+                await fetchTitleList(docId);
+                deleteTitleModal.style.display = 'none';
+            } catch (error) {
+                console.error('删除标题失败:', error);
+                alert('删除标题失败，请稍后重试。');
+            }
+        });
+    });
+</script>
+</body>
+</html>
