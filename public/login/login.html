@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>登录测试demo</title>
+  <style>
+    /* 全局样式 */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    /* 登录表单容器 */
+    .login-container {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    /* 标题 */
+    .login-container h2 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    /* 输入框样式 */
+    .login-container input[type="text"],
+    .login-container input[type="password"] {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+
+    /* 按钮样式 */
+    .login-container button {
+      width: 48%;
+      padding: 10px;
+      margin: 10px 1%;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    /* 确定按钮 */
+    .login-container button.confirm {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .login-container button.confirm:hover {
+      background-color: #0056b3;
+    }
+
+    /* 取消按钮 */
+    .login-container button.cancel {
+      background-color: #e74c3c;
+      color: white;
+    }
+
+    .login-container button.cancel:hover {
+      background-color: #c0392b;
+    }
+  </style>
+</head>
+<body>
+<!-- 登录表单 -->
+<div class="login-container">
+  <h2>登录测试demo</h2>
+  <form id="loginForm">
+    <label for="username"></label><input type="text" id="username" placeholder="用户名" required><br>
+    <label for="password"></label><input type="password" id="password" placeholder="密码" required><br>
+    <button type="button" class="confirm" id="loginBtn">确定</button>
+    <button type="button" class="cancel" onclick="window.location.href='/'">取消</button>
+  </form>
+</div>
+
+<!-- 基本 JavaScript 验证 -->
+<script>
+  document.getElementById('loginBtn').addEventListener('click',async function(event) {
+    try {
+      const username = document.getElementById('username').value;
+      const password = await hashPassword(document.getElementById('password').value);
+      if (!username || !password) {
+        event.preventDefault();
+        alert('用户名和密码不能为空！');
+        return;
+      }
+      const response = await fetch('/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          username,
+          password
+        })
+      });
+      if (response.redirected) {
+        // 如果服务器返回了重定向响应
+        window.location.href = response.url; // 跳转到新的 URL
+        return;
+      }
+      const data = await response.json();
+      if (data.success) {
+        alert('登录成功！');
+        window.location.href = '/docIndex';
+      } else {
+        alert('登录失败！' + data.msg);
+      }
+    } catch (error) {
+      console.error(error);
+      alert('发生错误' + error.message);
+    }
+  });
+  // 使用 crypto.subtle 对密码进行 SHA-256 哈希处理
+  async function hashPassword(password) {
+    // 将字符串转换为 Uint8Array（字节数组）
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+
+    // 使用 crypto.subtle.digest 生成 SHA-256 哈希
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+
+    // 将哈希值转换为十六进制字符串
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+  }
+</script>
+</body>
+</html>

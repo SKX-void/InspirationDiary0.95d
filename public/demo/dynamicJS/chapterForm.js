@@ -1,4 +1,4 @@
-async function insertTitleForm() {
+async function insertChapterForm() {
     const docId = document.getElementById("document-select").value;
     if (!docId) {alert("未选择文档0.0"); return;}
     document.getElementById("divForm").innerHTML = `
@@ -6,18 +6,18 @@ async function insertTitleForm() {
             <div class="dynamicForm">
                 <div><label for="new-title-name">标题名：</label><input type="text" id="new-title-name"></div>
                 <div class="btnRow">
-                    <button class="btnYesNo" onclick="insertTitle();deleteForm('divForm');">确定</button>
+                    <button class="btnYesNo" onclick="insertChapter();deleteForm('divForm');">确定</button>
                     <button class="btnYesNo" onclick="deleteForm('divForm')">取消</button
                 </div>
             </div>`;
 }
-async function updateTitleForm() {
+async function updateChapterForm() {
     const docId = document.getElementById("document-select").value;
     if (!docId) {alert("未选择文档0.0"); return;}
     const docName = document.getElementById("document-select").options[document.getElementById("document-select").selectedIndex].text;
-    const titleId = document.getElementById("title-select").value;
-    const titleName = document.getElementById("title-select").options[document.getElementById("title-select").selectedIndex].text;
-    const sortKey = document.getElementById("title-select").options[document.getElementById("title-select").selectedIndex].getAttribute('data-sort-key');
+    const titleId = document.getElementById("chapter-select").value;
+    const titleName = document.getElementById("chapter-select").options[document.getElementById("chapter-select").selectedIndex].text;
+    const sortKey = document.getElementById("chapter-select").options[document.getElementById("chapter-select").selectedIndex].getAttribute('data-sort-key');
     document.getElementById("divForm").innerHTML = `
             <div id="overlay"></div>
             <div class="dynamicForm">
@@ -26,23 +26,23 @@ async function updateTitleForm() {
                 <div><label for="rename-title-name">重命名：</label><input type="text" id="rename-title-name" value="${titleName}"></div>
                 <div><label for="sort-key">排序(未实现)：</label><input type="number" id="sort-key" value="${sortKey}" readonly></div>
                 <div class="btnRow">
-                    <button class="btnYesNo" onclick="updateTitle();deleteForm('divForm')">确定</button>
+                    <button class="btnYesNo" onclick="updateChapter();deleteForm('divForm')">确定</button>
                     <button class="btnYesNo" onclick="deleteForm('divForm')">取消</button
                 </div>
             </div>`;
 }
-async function deleteTitleForm() {
+async function deleteChapterForm() {
     const docId = document.getElementById("document-select").value;
     if (!docId) {alert("未选择文档0.0"); return;}
-    const titleId = document.getElementById("title-select").value;
+    const titleId = document.getElementById("chapter-select").value;
     if (!titleId) {alert("未选择标题0.0"); return;}
-    const titleName = document.getElementById("title-select").options[document.getElementById("title-select").selectedIndex].text;
+    const titleName = document.getElementById("chapter-select").options[document.getElementById("chapter-select").selectedIndex].text;
     document.getElementById("divForm").innerHTML = `
             <div id="overlay"></div>
             <div class="dynamicForm">
                 <div><label for="delete-doc-id">确定删除标题： [${titleId}]${titleName} ？</label>
                 <div class="btnRow">
-                    <button class="btnYesNo" onclick="deleteTitle();deleteForm('divForm')">确定</button>
+                    <button class="btnYesNo" onclick="deleteChapter();deleteForm('divForm')">确定</button>
                     <button class="btnYesNo" onclick="deleteForm('divForm')">取消</button
                 </div>
             </div>`;

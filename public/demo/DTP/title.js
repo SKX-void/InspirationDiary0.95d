@@ -1,110 +1,110 @@
-async function insertTitle(){
-    const selectElement = document.getElementById('document-select');
-    const id = selectElement.value;
-    const newTitleName = document.getElementById('new-title-name').value;
+async function insertChapter(){
+    const docName = document.getElementById('document-select').value;
+    const title = document.getElementById('new-chapter-name').value;
     try {
-        const response = await fetch(`/title`, {
+        const response = await fetch(`/chapter`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({doc_id: id, new_title_name: newTitleName})
+            body: JSON.stringify({doc_name: docName, title: title})
         });
-        const title = await response;
-        if(!title.ok)alert('发生错误：'+title.message);
-        await selectTitleList();
+        const titleRes = await response.json();
+        if(!response.ok)alert('发生错误：'+titleRes.err);
+        await selectChapterList();
     } catch (error) {
-            console.error('Error inserting title:', error);
+            alert('未知错误:', error);
         }
 }
 
-async function updateTitle(){
-    const selectElement = document.getElementById('document-select');
-    const docId = selectElement.value;
-    const titleId = document.getElementById('title-select').value;
-    const titleName = document.getElementById("title-select").options[document.getElementById("title-select").selectedIndex].text;
-    const sortKey = document.getElementById("title-select").options[document.getElementById("title-select").selectedIndex].getAttribute('data-sort-key');
-    if (!titleId) return;
+async function updateChapter(){
+    const docName = document.getElementById('document-select').value;
+    const chapterId = document.getElementById('chapter-select').value;
+    const title = document.getElementById("chapter-select").options[document.getElementById("chapter-select").selectedIndex].text;
+    const sortOrder = document.getElementById("chapter-select").options[document.getElementById("chapter-select").selectedIndex].getAttribute('data-sort-key');
+    if (!chapterId) return;
     try {
-        const response = await fetch(`/title`, {
+        const response = await fetch(`/chapter`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ doc_id: docId,title_id:titleId, title_name: titleName, sort_key: sortKey })
+            body: JSON.stringify({ doc_Name: docName,chapter_id:chapterId, title: title, sort_order: sortOrder })
         }        );
-        const title = await response;
-        if (!title.ok) alert('发生错误：' + title.message);
-        await selectTitleList();
+        const title = await response.json();
+        if (!response.ok) alert('发生错误：' + title.err);
+        await selectChapterList();
     } catch (error) {
-        console.error('Error updating title:', error);
+        alert('未知错误:', error);
     }
 }
 
-async function updateTitleLastPage() {
-    const selectElement = document.getElementById('document-select');
-    const id = selectElement.value;
-    if (!id) return;
-    const titleId = document.getElementById('title-select').value;
-    if (!titleId) return;
+async function updateChapterLastPage() {
+    const docName = document.getElementById('document-select').value;
+    if (!docName) return;
+    const chapterId = document.getElementById('chapter-select').value;
+    if (!chapterId) return;
     const lastPage = document.getElementById('page-input').value;
     try {
-        const response = await fetch(`/title/last-page`, {
+        const response = await fetch(`/chapter/last-page`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({doc_id: id, title_id: titleId, last_page: lastPage})
+            body: JSON.stringify({doc_name: docName, chapter_id: chapterId, last_page: lastPage})
         });
-        const title = await response;
-        if (!title.ok) alert('记录最后一页发生错误：' + title.message);
+        const title = await response.json();
+        if (!response.ok) alert('记录最后一页发生错误：' + title.err);
     } catch (error) {
-        console.error('Error updating title:', error);
+        alert('未知错误:', error);
     }
 }
 
-async function deleteTitle(){
-    const docId = document.getElementById('document-select').value;
-    const titleId = document.getElementById('title-select').value;
-    if (!titleId) return;
+async function deleteChapter(){
+    const docName = document.getElementById('document-select').value;
+    const chapterId = document.getElementById('chapter-select').value;
+    if (!chapterId) return;
     try {
-        const response = await fetch(`/title`, {
+        const response = await fetch(`/chapter`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({doc_id: docId, title_id: titleId})
+            body: JSON.stringify({doc_name: docName, chapter_id: chapterId})
         });
-        const title = await response;
-        if (!title.ok) alert('发生错误：' + title.message);
-        await selectTitleList();
+        const title = await response.json();
+        if (!response.ok) alert('发生错误：' + title.err);
+        await selectChapterList();
     } catch (error) {
-        console.error('Error deleting title:', error);
+        alert('未知错误:', error);
     }
 }
-async function selectTitleList(){
-    const selectElement = document.getElementById('document-select');
-    const id = selectElement.value;
-    if (!id) {
-        document.getElementById('title-select').innerHTML = '<option value="">-- 未选择 --</option>';
+async function selectChapterList(){
+    const docName = document.getElementById('document-select').value;
+    if (!docName) {
+        document.getElementById('chapter-select').innerHTML = '<option value="">-- 未选择 --</option>';
         quill.root.innerHTML = '';
         quill.disable();
         return;
     }
     try {
-        const response = await fetch(`/title?doc_id=${id}`);
-        const titles = await response.json();
-        const titleSelectElement = document.getElementById('title-select');
+        const response = await fetch(`/chapter?doc_name=${docName}`);
+        const chapters = await response.json();
+        if (!response.ok) {
+            alert('获取章节列表发生错误：' + chapters.err);
+            return;
+        }
+        const titleSelectElement = document.getElementById('chapter-select');
         titleSelectElement.innerHTML = '<option value="">-- 未选择 --</option>';
-        titles.forEach(title => {
+        chapters.forEach(title => {
             const option = document.createElement('option');
-            option.value = title.title_id;
-            option.textContent = title.title_name;
-            option.setAttribute('data-sort-key', title.sort_key);
+            option.value = title.chapter_id;
+            option.textContent = title.title;
+            option.setAttribute('data-sort-key', title.sort_order);
             option.setAttribute('data-last-page', title.last_page);
             titleSelectElement.appendChild(option);
         });
     } catch (error) {
-        console.error('Error loading titles:', error);
+        alert('未知错误:', error);
     }
 }

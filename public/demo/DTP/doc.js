@@ -10,72 +10,71 @@ async function insertDoc() {
             },
             body: JSON.stringify({ doc_name: docName })
         });
-        const res = await response;
-        if(!res.ok)alert("发生错误："+res.message);
+        if(!response.ok)alert("发生错误："+response.json().err);
         docNameInput.value = '';
         await selectDocList();
     } catch (error) {
-        console.error('Error adding document:', error);
+        alert('未知错误：', error);
     }
 }
 
 async function deleteDoc() {
     const selectedDoc = document.getElementById('document-select');
-    const selectedDocId = selectedDoc.value;
-    if (!selectedDocId) return;
+    const selectedDocName = selectedDoc.value;
+    if (!selectedDocName) return;
     try {
         const response = await fetch(`/doc`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ doc_id: selectedDocId })
+            body: JSON.stringify({ doc_name: selectedDocName })
         });
-        const result = await response;
-        if(!result.ok)alert("发生错误："+result.message);
+        if(!response.ok)alert("发生错误："+response.json().err);
         selectedDoc.value = '';
         quill.root.innerHTML = '';
         await selectDocList();
     } catch (error) {
-        console.error('Error deleting document:', error);
+        alert('未知错误:', error);
     }
 }
 async function updateDoc() {
     const selectedDoc = document.getElementById('document-select');
-    const selectedDocId = selectedDoc.value;
-    if (!selectedDocId) return;
-    const newNameInput =document.getElementById('rename-doc-name').value;
-    const newDocId = document.getElementById('rename-doc-id').value;
+    const selectedDocName = selectedDoc.value;
+    if (!selectedDocName) return;
+    const newDocName =document.getElementById('rename-doc-name').value;
     try {
         const response = await fetch(`/doc`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ old_doc_id: selectedDocId,new_doc_id: newDocId,doc_name: newNameInput })
+            body: JSON.stringify({ old_doc_name: selectedDocName,new_doc_name: newDocName })
         });
-        const updatedDoc = await response;
-        if(!updatedDoc.ok)alert("发生错误："+updatedDoc.message);
+        if(!response.ok)alert("发生错误："+response.json().err);
     } catch (error) {
-        console.error('Error updating document:', error);
+        alert('未知错误:', error);
     }
 }
 
 async function selectDocList() {
     try {
         const response = await fetch('/doc');
-        if (!response.ok) alert('发生错误：' + response.message);
+        if (!response.ok) alert('发生错误：' + response.json().err);
         const documents = await response.json();
         const selectElement = document.getElementById('document-select');
         selectElement.innerHTML = '<option value="">-- 未选择 --</option>';
         documents.forEach(doc => {
             const option = document.createElement('option');
-            option.value = doc.doc_id;
+            option.value = doc.doc_name;
             option.textContent = doc.doc_name;
             selectElement.appendChild(option);
         });
     } catch (error) {
-        console.error('Error fetching documents:', error);
+        alert('未知错误:', error);
     }
 }
 window.onload = selectDocList;
+
+
+

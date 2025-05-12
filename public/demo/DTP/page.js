@@ -1,64 +1,61 @@
-async function loadPage(doc_id, title_id, page_num){
+async function loadPage(docId, chapterId, pageNum){
     try {
         if(!await updatePage()){return;}
-        let page=parseInt(page_num);
+        let page=parseInt(pageNum);
         if (page < 1) {page=1;}
-        if (page>document.getElementById('total-pages').value){page=document.getElementById('total-pages').value;}
-        const response = await fetch(`/page?doc_id=${doc_id}&title_id=${title_id}&page=${page}`);
+        const total_pages=document.getElementById('total-pages').value;
+        if (page>total_pages){page=total_pages;}
+        const response = await fetch(`/page?doc_name=${encodeURIComponent(docId)}&chapter_id=${chapterId}&page_num=${page}`);
         if (!response.ok) {
-            alert("加载页面失败！" + response.json().message);
+            alert("加载页面失败！" + response.json().err);
             return;
         }
         const data = await response.json();
-        const rtfBytes = data.rtf_bytes;
+        const rtfBytes = data.content;
         if (rtfBytes) quill.setContents(JSON.parse(rtfBytes));
-        else quill.setText(data.text);
+        else quill.setText(data.plain_text);
         const last_local=data.last_local;
         if (last_local) quill.setSelection(last_local, 0);
-        document.getElementById('page-input').value = `${page_num}`;
+        document.getElementById('page-input').value = `${page}`;
         quill.enable();
-        await updateTitleLastPage();
+        await updateChapterLastPage();
     } catch (error) {
-        console.error('Error loading last page:', error);
+        alert('未知错误:', error);
     }
 }
 
 async function loadLastPage() {
-    const doc_id = document.getElementById('document-select').value;
-    const selectElement = document.getElementById('title-select');
-    const title_id = selectElement.value;
-    const last_page = selectElement.options[selectElement.selectedIndex].getAttribute('data-last-page');
-    if (!title_id) {
+    const docName = document.getElementById('document-select').value;
+    const selectElement = document.getElementById('chapter-select');
+    const chapterId = selectElement.value;
+    const lastPage = selectElement.options[selectElement.selectedIndex].getAttribute('data-last-page');
+    if (!chapterId) {
         quill.root.innerHTML = '';
         document.getElementById('page-input').value = '';
         document.getElementById('total-pages').textContent = "/";
         return;
     }
     await getTotalPages();
-    await loadPage(doc_id, title_id, last_page);
+    await loadPage(docName, chapterId, lastPage);
 }
 
 async function goToPage(){
-    const doc_id = document.getElementById('document-select').value;
-    const title_id = document.getElementById('title-select').value;
-    const page_num = document.getElementById('page-input').textContent;
-    await loadPage(doc_id, title_id, page_num);
+    const docName = document.getElementById('document-select').value;
+    const chapterId = document.getElementById('chapter-select').value;
+    const pageNum = document.getElementById('page-input').textContent;
+    await loadPage(docName, chapterId, pageNum);
 }
 
 async function goToPageOffset(offset){
-    const selectDocument = document.getElementById('document-select');
-    const doc_id = selectDocument.value;
-    const selectElement = document.getElementById('title-select');
-    const title_id = selectElement.value;
-    const page_num = (parseInt(document.getElementById('page-input').value) + offset).toString();
-    await loadPage(doc_id, title_id, page_num);
+    const docName = document.getElementById('document-select').value;
+    const chapterId = document.getElementById('chapter-select').value;
+    const pageNum = (parseInt(document.getElementById('page-input').value) + offset).toString();
+    await loadPage(docName, chapterId, pageNum);
 }
 
 async function insertPageAtEndOf(){
-    const selectDocument = document.getElementById('document-select');
-    const doc_id = selectDocument.value;
-    const selectElement = document.getElementById('title-select');
-    const title_id = selectElement.value;
+    const docName = document.getElementById('document-select').value;
+    const chapterId = document.getElementById('chapter-select').value;
     const currentPage = document.getElementById('page-input').value;
     const response = await fetch(`/page`, {
         method: 'POST',
@@ -66,26 +63,24 @@ async function insertPageAtEndOf(){
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            doc_id: doc_id,
-            title_id: title_id,
-            page: currentPage
+            doc_name: docName,
+            chapter_id: chapterId,
+            page_num: currentPage
         })
     });
     const data = await response;
-    if(!data.ok)alert("操作失败："+data.message);
+    if(!response.ok)alert("操作失败："+data.err);
     const nextPage = parseInt(currentPage) + 1;
     await getTotalPages();
-    await loadPage(doc_id, title_id, nextPage);
+    await loadPage(docName, chapterId, nextPage);
 }
 
 async function updatePage() {
     try {
-        const selectDocument = document.getElementById('document-select');
-        const doc_id = selectDocument.value;
-        const selectElement = document.getElementById('title-select');
-        const title_id = selectElement.value;
+        const docName = document.getElementById('document-select').value;
+        const chapterId = document.getElementById('chapter-select').value;
         const page = document.getElementById('page-input').value;
-        if (isNaN(parseInt(doc_id)) || isNaN(parseInt(title_id)) || isNaN(parseInt(page))) return true;
+        if (isNaN(parseInt(chapterId)) || isNaN(parseInt(page))) return true;
         const rtfText = quill.getContents();
         const text = quill.getText();
         const selection = quill.getSelection();
@@ -96,45 +91,47 @@ async function updatePage() {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                doc_id: doc_id,
-                title_id: title_id,
-                page: page,
-                rtf_text: JSON.stringify(rtfText),
-                text: text,
+                doc_name: docName,
+                chapter_id: chapterId,
+                page_num: page,
+                content: JSON.stringify(rtfText),
+                plain_text: text,
                 last_local: last_local
             })
         });
-        const data = await response;
-        if (!data.ok) {
-            alert("保存操作失败！" + data.message);
+        const data = await response.json();
+        if (!response.ok) {
+            alert("保存操作失败！" + data.err);
             return false;
         }
         return true;
     } catch (error) {
-        console.error('Error updating page:', error);
+        alert('未知错误:', error);
         return false;
     }
 }
 
 async function getTotalPages(){
-    const selectDocument = document.getElementById('document-select');
-    const doc_id = selectDocument.value;
-    const selectElement = document.getElementById('title-select');
-    const title_id = selectElement.value;
+    const docName = document.getElementById('document-select').value;
+    const chapterId = document.getElementById('chapter-select').value;
     try {
-        const response = await fetch(`/page/total?doc_id=${doc_id}&title_id=${title_id}`);
+        const response = await fetch(`/page/total?doc_name=${encodeURIComponent(docName)}&chapter_id=${chapterId}`);
         const data = await response.json();
+        if (!response.ok) {
+            alert("获取总页数失败！" + data.err);
+            return;
+        }
         document.getElementById('total-pages').textContent = "/ "+data.total_pages;
         document.getElementById('total-pages').value = data.total_pages;
     } catch (error) {
-        console.error('Error getting total pages:', error);
+        console.error('未知错误:', error);
     }
 }
 
 async function deletePageAt(){
-    const doc_id = document.getElementById('document-select').value;
-    const title_id = document.getElementById('title-select').value;
-    const page = document.getElementById('page-input').value;
+    const docName = document.getElementById('document-select').value;
+    const chapterId = document.getElementById('chapter-select').value;
+    const page = document.getElementById('pageNum-input').value;
     if(parseInt(page)===1 && parseInt(document.getElementById('total-pages').value)===1){
         quill.root.innerHTML = '';
         return;
@@ -145,18 +142,18 @@ async function deletePageAt(){
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({doc_id: doc_id, title_id: title_id, page: page})
+            body: JSON.stringify({doc_name: docName, chapter_id: chapterId, page_num: page})
         });
         const data = await response.json();
-        if(!data.ok)alert("操作失败："+data.message);
+        if(!response.ok)alert("操作失败："+data.err);
         let toPage;
         if(parseInt(page)!==1){
             toPage=(parseInt(page)-1).toString();
         }else {
             toPage=(parseInt(page)).toString();
         }
-        await loadPage(doc_id, title_id, toPage);
+        await loadPage(docName, chapterId, toPage);
     } catch (error) {
-        console.error('Error deleting page:', error);
+        alert('未知错误:', error);
     }
 }

@@ -4,15 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>页面列表</title>
-    <link rel="stylesheet" href="page/pageIndex.css">
+    <link rel="stylesheet" href="pageIndex.css">
     <style>
     </style>
 </head>
 <body>
 <h1>页面列表</h1>
+<button onclick="backTitleIndex()" id="back-title-btn">返回标题列表</button>
 <ul id="pageList" class="page-list"></ul>
 
 <script>
+    const docName = getQueryParameter('doc_name'); // 从 URL 中获取 docName
+    const chapterId = getQueryParameter('chapter_id'); // 从 URL 中获取 chapterId
+    const lastPage = getQueryParameter('last_page'); // 从 URL 中获取 lastPage
+
+    if (!docName || !chapterId) {
+        document.getElementById('pageList').innerHTML = '<li>缺少文档 ID 或标题 ID，请检查 URL。</li>';
+    }
+    getPageList(docName, chapterId, lastPage); // 根据 docName 和 chapterId 获取页面列表
+
     // 获取 URL 中的查询参数
     function getQueryParameter(paramName) {
         const queryString = window.location.search;
@@ -30,25 +40,23 @@
     }
 
     // 获取总页数并渲染页面列表
-    async function fetchPageList(docId, titleId, lastPage) {
+    async function getPageList(docName, chapterId, lastPage) {
         try {
-            // 向 /page/total?doc_id=${docId}&title_id=${titleId} 发送 GET 请求
-            const response = await fetch(`/page/total?doc_id=${encodeURIComponent(docId)}&title_id=${encodeURIComponent(titleId)}`);
+            const response = await fetch(`/page/total?doc_name=${encodeURIComponent(docName)}&chapter_id=${chapterId}`);
+            const data = await response.json();
             if (!response.ok) {
-                handleError("服务器响应错误:",new Error('无法获取总页数'));
+                handleError("服务器获取总页数失败:",new Error(`${response.status}: ${data.err}`));
             }
-            const data = await response.json(); // 假设返回的是一个包含 total_pages 的对象
-            const totalPages = data.total_pages;//这是一个数据库MAX（）的AS量
-            // 渲染页面列表
-            renderPageList(totalPages, docId, titleId, lastPage);
+            const totalPages = data.total_pages;
+            renderPageList(totalPages, docName, chapterId, lastPage);
         } catch (error) {
-            console.error('请求失败:', error);
+            handleError('请求失败:', error);
             document.getElementById('pageList').innerHTML = '<li>加载页面列表失败，请稍后重试。</li>';
         }
     }
 
     // 渲染页面列表
-    function renderPageList(totalPages, docId, titleId, lastPage) {
+    function renderPageList(totalPages, docName, chapterId, lastPage) {
         const pageListElement = document.getElementById('pageList');
         pageListElement.innerHTML = ''; // 清空现有内容
         const lastPageNumber = parseInt(lastPage); // 转换为数字
@@ -60,12 +68,10 @@
             if (i === lastPageNumber) {
                 listItem.classList.add('active');
             }
-
             listItem.textContent = i.toString();
 
-            // 点击时跳转到 /page?doc_id=${docId}&title_id=${titleId}&page=${i}
             listItem.addEventListener('click', () => {
-                window.location.href = `/editor?docId=${docId}&titleId=${titleId}&page=${i}`;
+                window.location.href = `/editor?doc_name=${encodeURIComponent(docName)}&chapter_id=${chapterId}&page_num=${i}`;
             });
 
             pageListElement.appendChild(listItem);
@@ -73,25 +79,16 @@
 
         // 自动滚动到标记的方块（如果有 lastPage）
         if (lastPage) {
-            const activeItem = document.querySelector('.page-item.active');
+            const activeItem = document.querySelector('.pageNum-item.active');
             if (activeItem) {
                 activeItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         }
     }
 
-    // 页面加载时获取 docId、titleId 和 lastPage 并加载页面列表
-    window.addEventListener('DOMContentLoaded', () => {
-        const docId = getQueryParameter('docId'); // 从 URL 中获取 docId
-        const titleId = getQueryParameter('titleId'); // 从 URL 中获取 titleId
-        const lastPage = getQueryParameter('lastPage'); // 从 URL 中获取 lastPage
-
-        if (!docId || !titleId) {
-            document.getElementById('pageList').innerHTML = '<li>缺少文档 ID 或标题 ID，请检查 URL。</li>';
-            return;
-        }
-        fetchPageList(docId, titleId, lastPage); // 根据 docId 和 titleId 获取页面列表
-    });
+    function backTitleIndex() {
+        window.location.href = `/chapterIndex?doc_name=${encodeURIComponent(docName)}`;
+    }
 </script>
 </body>
 </html>
