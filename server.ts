@@ -23,7 +23,7 @@ app.use('/doc', docRoutes);
 app.use('/chapter', titleRoutes);
 app.use('/page', pageRoutes);
 
-const debugHasUser = false;
+const debugHasUser = true;
 
 //主页路由
 // 设置静态文件目录（用于提供 index.html）
@@ -85,10 +85,10 @@ app.get('/editor', (req:any, res:any) => {
     res.sendFile(path.join(__dirname, 'public/editor', 'editor.html'));
 })
 
-// const httpPort=3003;
-// app.listen(httpPort, '0.0.0.0', () => {
-//     console.log(`Server running on http://localhost:${httpPort}`);
-// });
+const httpPort=65002;
+app.listen(httpPort, '0.0.0.0', () => {
+    console.log(`Server running on http://localhost:${httpPort}`);
+});
 // const ip6 ='2001:da8:d806:a001::3eaf';
 //https证书
 
@@ -98,11 +98,13 @@ const options = {
     key: fs.readFileSync('./ssl/key.pem'), // 私钥文件路径
     cert:fs.readFileSync('./ssl/cert.pem')// 证书文件路径
 }
-https.createServer(options, app).listen(3001,'::', () => {
-    console.log(`HTTPS server running on https://[::]:${3001}`);
+const httpsIpv6Port=65003;
+https.createServer(options, app).listen(httpsIpv6Port,'::', () => {
+    console.log(`HTTPS server running on https://[::]:${httpsIpv6Port}`);
 });
-https.createServer(options, app).listen(3003,'127.0.0.1', () => {
-    console.log(`HTTPS server running on https://127.0.0.1:3003`);
+const httpsIpv4Port=65001;
+https.createServer(options, app).listen(httpsIpv4Port,'0.0.0.0', () => {
+    console.log(`HTTPS server running on https://0.0.0.0:${httpsIpv4Port}`);
 });
 
 

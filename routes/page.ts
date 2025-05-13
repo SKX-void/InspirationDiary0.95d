@@ -176,58 +176,6 @@ router.post('/', (req:express.Request<{},{},{doc_name:string, chapter_id:string,
         });
 
 
-
-        // db.serialize(() => {
-        //     db.run("BEGIN TRANSACTION");
-        //
-        //     db.get(
-        //         "SELECT MAX(page_num) as total_pages FROM pages WHERE chapter_id = ?",
-        //         [chapterId],
-        //         (err: Error, row: { total_pages: number }) => {
-        //             if (err) {
-        //                 db.run("ROLLBACK");
-        //                 return res.status(500).json({ err: err.message });
-        //             }
-        //
-        //             let currentPage = row.total_pages;
-        //
-        //             // 使用循环替代递归
-        //             const updateNext = () => {
-        //                 if (currentPage >= nextPage) {
-        //                     db.run(
-        //                         "UPDATE pages SET page_num = page_num + 1 WHERE chapter_id = ? AND page_num = ?",
-        //                         [chapterId, currentPage],
-        //                         function (err) {
-        //                             if (err) {
-        //                                 db.run("ROLLBACK");
-        //                                 return res.status(500).json({ err: err.message });
-        //                             }
-        //                             currentPage--;
-        //                             updateNext(); // 继续处理下一页
-        //                         }
-        //                     );
-        //                 } else {
-        //                     // 插入新页
-        //                     db.run(
-        //                         "INSERT INTO pages (chapter_id, page_num, content, plain_text, format) VALUES (?, ?, ?, ?, 'quill')",
-        //                         [chapterId, nextPage, content, plainText],
-        //                         function (err) {
-        //                             if (err) {
-        //                                 db.run("ROLLBACK");
-        //                                 return res.status(500).json({ err: err.message });
-        //                             }
-        //                             db.run("COMMIT", () => {
-        //                                 res.status(200).json({ page: nextPage });
-        //                             });
-        //                         }
-        //                     );
-        //                 }
-        //             };
-        //
-        //             updateNext(); // 启动循环
-        //         }
-        //     );
-        // });
     }
 });
 

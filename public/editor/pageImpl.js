@@ -128,10 +128,11 @@ async function goToPageOffset(offset){
 }
 
 async function updatePage() {
+    SaveCartoon.onSaving()
     const docName = getQueryParameter('doc_name'); // 从 URL 中获取 docName
     const chapterId = getQueryParameter('chapter_id'); // 从 URL 中获取 chapterId
     const pageNum = getQueryParameter('page_num'); // 从 URL 中获取 lastPage
-    if (!docName || !chapterId || !pageNum) {return;}
+    if (!docName || !chapterId || !pageNum) {return false;}
     try {
         const quillText = quill.getContents();
         const text = quill.getText();
@@ -154,12 +155,17 @@ async function updatePage() {
         const data = await response.json();
         if (!response.ok) {
             handleError("服务端保存操作失败！", new Error(`${response.status}:${data.err}`), data.message);
-            return;
+            SaveCartoon.onSaveFailed();
+            return false;
         }
         quillTextChange = false;
         document.getElementById('textChange').textContent = '文本已修改(翻页保存检测)：否';
+        SaveCartoon.onSaveSuccess();
+        return true;
     } catch (error) {
         handleError('Error updating page:', error,"FROM updatePage()");
+        SaveCartoon.onSaveFailed();
+        return false;
     }
 }
 
@@ -284,7 +290,12 @@ async function autoCutPage() {
  * @param {boolean} update
  */
 async function goToPage(docName, chapterId, page_num,update=true){
-    if (update)await updatePage();
+    if (update){
+        const updateResult = await updatePage();
+        if (!updateResult){
+            return;
+        }
+    }
     const url= `/editor?doc_name=${encodeURIComponent(docName)}&chapter_id=${chapterId}&page_num=${page_num}`;
     history.pushState({}, '', url);
     await loadPage(docName, chapterId, page_num);

@@ -26,7 +26,7 @@ interface User {
     [username: string]: string;
 }
 const users:User = {
-    'skx': '0e491c30e1e21a85dd64c63d2513af2c8c474a5a5e38f392ed2b54e21df465a5',
+
     'test': '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08'
 };
 
