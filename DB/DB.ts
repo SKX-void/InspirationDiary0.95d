@@ -93,9 +93,6 @@ export default class DB {
         try {
             const sqlite3DB = new sqlite3.Database(path);
             const db = new DB(sqlite3DB);
-            const errFunc = (err: Error) => {
-                if (err) console.error("创建用户数据库错误：" + err);
-            }
             const initStr = `
                 CREATE TABLE user_info
                 (

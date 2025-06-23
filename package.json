@@ -1,5 +1,5 @@
 {
-  "name": "PWWeb",
+  "name": "pw_web",
   "version": "1.0.0",
   "description": "",
   "main": "server.ts",
@@ -8,14 +8,11 @@
   },
   "private": true,
   "dependencies": {
-    "@types/quill": "^2.0.14",
     "body-parser": "^1.20.3",
-    "connect-timeout": "^1.9.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "express": "^4.21.2",
     "express-session": "^1.18.1",
-    "morgan": "^1.10.0",
     "sqlite3": "^5.1.7"
   },
   "devDependencies": {
@@ -24,6 +21,7 @@
     "@types/express": "^5.0.1",
     "@types/express-session": "^1.18.1",
     "@types/sqlite3": "^3.1.11",
+    "depcheck": "^1.4.7",
     "typescript": "^5.8.3"
   }
 }
