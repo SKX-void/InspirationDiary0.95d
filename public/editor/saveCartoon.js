@@ -48,38 +48,14 @@ class SaveCartoon {
         this.saveResult = true;
         this._clear(); // 清除旧内容
 
-        // 创建遮罩层
-        this.overlay = document.createElement('div');
-        Object.assign(this.overlay.style, {
-            position: 'fixed',
-            top: '0',
-            left: '0',
-            width: '100%',
-            height: '100%',
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: '9999'
-        });
 
-        // 创建内容框
-        this.box = document.createElement('div');
-        Object.assign(this.box.style, {
-            backgroundColor: 'white',
-            padding: '30px',
-            borderRadius: '8px',
-            textAlign: 'center',
-            fontFamily: 'sans-serif',
-            fontSize: '16px',
-            minWidth: '200px',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
-        });
+        this._mask();
 
-        // 添加加载动画
-        const spinner = document.createElement('div');
-        spinner.innerHTML = this.svgIconString;
-        this.box.appendChild(spinner);
+
+
+
+
+
 
         // 添加文字
         const text = document.createElement('div');
@@ -154,6 +130,23 @@ class SaveCartoon {
     static onLoading() {
         if(!this.saveResult)this._clear();
 
+        this._mask();
+
+
+
+
+        this.overlay.appendChild(this.box);
+        document.body.appendChild(this.overlay);
+    }
+    static onLoaded() {
+        if (!this.overlay || !this.box || this.saveResult) return;
+        this._clear();
+    }
+
+
+
+    private static _mask(){
+        // 创建遮罩层
         this.overlay = document.createElement('div');
         Object.assign(this.overlay.style, {
             position: 'fixed',
@@ -167,7 +160,7 @@ class SaveCartoon {
             justifyContent: 'center',
             zIndex: '9999'
         });
-
+        // 创建内容框
         this.box = document.createElement('div');
         Object.assign(this.box.style, {
             backgroundColor: 'white',
@@ -179,16 +172,9 @@ class SaveCartoon {
             minWidth: '200px',
             boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
         });
-
+        // 添加加载动画
         const spinner = document.createElement('div');
         spinner.innerHTML = this.svgIconString;
         this.box.appendChild(spinner);
-
-        this.overlay.appendChild(this.box);
-        document.body.appendChild(this.overlay);
-    }
-    static onLoaded() {
-        if (!this.overlay || !this.box || this.saveResult) return;
-        this._clear();
     }
 }

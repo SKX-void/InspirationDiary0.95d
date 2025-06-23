@@ -169,7 +169,7 @@
         // 右键菜单相关逻辑
         document.addEventListener('contextmenu', (event) => {
             const target = event.target;
-            if (target.classList.contains('chapter-item')) {
+            if (target instanceof HTMLElement && target.classList.contains('chapter-item')) {
                 event.preventDefault();
 
                 currentChapterId = target.dataset.chapterId;

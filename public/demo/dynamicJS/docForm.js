@@ -10,13 +10,14 @@ async function insertDocForm() {
             </div>`;
 }
 async function updateDocForm() {
-    const docId = document.getElementById("document-select").value;
-    if (!docId) {alert("未选择文档0.0"); return;}
-    const docName = document.getElementById("document-select").options[document.getElementById("document-select").selectedIndex].text;
+    const docElement = document.getElementById("document-select");
+    if(!(docElement instanceof HTMLInputElement)) return;
+    const docName = docElement.value;
+    if (!docName) {alert("未选择文档0.0"); return;}
     document.getElementById("divForm").innerHTML = `
             <div id="overlay"></div>
             <div class="dynamicForm">
-                <div><label for="rename-doc-id">文档ID：</label><input type="text" id="rename-doc-id" value="${docId}" readonly></div>
+                <div><label for="rename-doc-id">文档原名：</label><input type="text" id="rename-doc-id" value="${docName}" readonly></div>
                 <div><label for="rename-doc-name">重命名：</label><input type="text" id="rename-doc-name" value="${docName}"></div>
                 <div class="btnRow">
                     <button class="btnYesNo" onclick="updateDoc();deleteForm('divForm')">确定</button>
@@ -25,13 +26,13 @@ async function updateDocForm() {
             </div>`;
 }
 async function deleteDocForm() {
-    const docId = document.getElementById("document-select").value;
-    if (!docId) {alert("未选择文档0.0"); return;}
-    const docName = document.getElementById("document-select").options[document.getElementById("document-select").selectedIndex].text;
+    const docElement = document.getElementById("document-select");
+    if(!(docElement instanceof HTMLInputElement)) return;
+    const docName = docElement.value;
     document.getElementById("divForm").innerHTML = `
             <div id="overlay"></div>
             <div class="dynamicForm">
-                <div><label for="delete-doc-id">确定删除文档： [${docId}]${docName} ？</label>
+                <div><label for="delete-doc-id">确定删除文档： ${docName} ？</label>
                 <div class="btnRow">
                     <button class="btnYesNo" onclick="deleteDoc();deleteForm('divForm')">确定</button>
                     <button class="btnYesNo" onclick="deleteForm('divForm')">取消</button

@@ -6,15 +6,19 @@
     <title>Quill Editor</title>
     <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
     <link href="editor.css" rel="stylesheet">
+    <link href="quillFont.css" rel="stylesheet">
     <style>
     </style>
 </head>
 <body>
-<h1>Quill Editor</h1>
-<button id="back-title-btn">返回页面列表</button>
+<h1 id="title">Quill Editor</h1>
+<div>
+    <button id="back-title-btn" style="display:block;">返回页面列表</button>
+</div>
+
 
 <!-- 页码 -->
-<div class="pagination-controls">
+<div class="pagination-controls" id="pagination-controls">
     <button id="prev-page-btn">上一页</button>
     <label for="page-input"></label><input type="text" pattern="\d*" id="page-input" min="1" placeholder="页码" style="width: 5em;">
     <span id="total-pages">/ 总页数</span>
@@ -29,11 +33,15 @@
 
 
 <!-- Quill Editor -->
-<div id="toolbar"></div>
-<div id="editor-container"></div>
+<div id="editor-container" class="editor-container"></div>
 
 <!-- Actions -->
-<button id="save-btn" onclick="updatePage()">提交更改</button>
+<div>
+    <button id="save-btn">提交更改</button>
+    <input type="checkbox" id="hide-toolbar-checkbox">
+    <label for="hide-toolbar-checkbox">隐藏工具栏</label>
+</div>
+
 
 <script src="https://cdn.quilljs.com/1.3.7/quill.js"></script>
 <script src="quillInit.js"></script>
@@ -98,6 +106,17 @@
     document.getElementById('save-btn').addEventListener('click',async function () {
         SaveCartoon.onLoading();
         await updatePage();
+        const docName = getQueryParameter('doc_name');
+        const chapterId = getQueryParameter('chapter_id');
+        const pageNum = getQueryParameter('page_num');
+        const newVersion = await fetch(`/api/page/version?doc_name=${encodeURIComponent(docName)}&chapter_id=${encodeURIComponent(chapterId)}&page_num=${encodeURIComponent(pageNum)}}`);
+        if (newVersion.ok) {
+            const json =await newVersion.json();
+            current_version = json.current_version;
+        }else {
+            const json =await newVersion.json();
+            handleError('获取版本号失败',new Error(json.err));
+        }
         SaveCartoon.onLoaded();
     });
 
@@ -112,12 +131,43 @@
         loadPage(docName, chapterId, pageNum); // 根据 docName, chapterId, lastPage 加载页面
     });
 
-    function backPageIndex() {
+    async function backPageIndex() {
+        if (quillTextChange) {
+            const updateResult = await updatePage();
+            if (!updateResult) {
+                return;
+            }
+        }
         const docName = getQueryParameter('doc_name');
         const chapterId = getQueryParameter('chapter_id');
         const pageNum = getQueryParameter('page_num');
         window.location.href = `/pageIndex?doc_name=${docName}&chapter_id=${chapterId}&last_page=${pageNum}`;
     }
+
+    document.getElementById('hide-toolbar-checkbox').addEventListener('change', function () {
+
+        const paginationControls = document.getElementById('pagination-controls');
+        const backBtn = document.getElementById('back-title-btn');
+        const title = document.getElementById('title');
+        const toolbar = document.querySelector('.ql-toolbar');
+        const container =document.querySelector('.ql-container.ql-snow');
+        if(!(toolbar instanceof HTMLElement && container instanceof HTMLElement))return;
+        if (this.checked) {
+            toolbar.style.display = 'none';  // 隐藏
+            paginationControls.style.display = 'none';
+            container.style.borderTop = '1px solid #ccc';
+            backBtn.style.display = 'none';
+            title.style.display = 'none';
+            //editorContainer.style.height = '90vh';
+        }else {
+            toolbar.style.display = '';  // 显示
+            paginationControls.style.display = 'block';
+            container.style.borderTop = 'none';
+            backBtn.style.display = 'block';
+            title.style.display = 'block';
+            //editorContainer.style.height = '70vh';
+        }
+    });
 
 </script>
 </body>

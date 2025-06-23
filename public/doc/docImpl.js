@@ -13,9 +13,9 @@ function handleError(info, error, message) {
 }
 
 // 获取文档列表的函数
-async function fetchDocumentList() {
+async function getDocumentList() {
     try {
-        const response = await fetch('/doc');
+        const response = await fetch('/api/doc');
         const docs = await response.json();
         if (!response.ok) {
             handleError("服务器获取文档列表错误：", new Error(`${response.status}: ${docs.err}`));
@@ -38,7 +38,7 @@ async function fetchDocumentList() {
  */
 async function updateDocument(oldDocName, newDocName) {
     try {
-        const response = await fetch('/doc', {
+        const response = await fetch('/api/doc', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ old_doc_name: oldDocName, new_doc_name: newDocName })
@@ -58,7 +58,7 @@ async function updateDocument(oldDocName, newDocName) {
  */
 async function deleteDocument(docName) {
     try {
-        const response = await fetch('/doc', {
+        const response = await fetch('/api/doc', {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ doc_name: docName })
@@ -78,7 +78,7 @@ async function deleteDocument(docName) {
  */
 async function insertDocument(docName) {
     try {
-        const response = await fetch('/doc', {
+        const response = await fetch('/api/doc', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ doc_name: docName })

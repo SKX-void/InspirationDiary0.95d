@@ -1,3 +1,4 @@
+
 let toolbarOptions = [
     ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
     ['blockquote', 'code-block'],

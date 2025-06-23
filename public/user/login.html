@@ -91,16 +91,14 @@
 
 <!-- 基本 JavaScript 验证 -->
 <script>
-  document.getElementById('loginBtn').addEventListener('click',async function(event) {
+  document.getElementById('loginBtn').addEventListener('click',async function() {
     try {
-      const username = document.getElementById('username').value;
-      const password = await hashPassword(document.getElementById('password').value);
-      if (!username || !password) {
-        event.preventDefault();
-        alert('用户名和密码不能为空！');
-        return;
-      }
-      const response = await fetch('/login', {
+      const unIn = document.getElementById('username');
+      const pwIn = document.getElementById('password');
+      if(!(unIn instanceof HTMLInputElement && pwIn instanceof HTMLInputElement))return;
+      const username = unIn.value;
+      const password = await hashPassword(pwIn.value);
+      const response = await fetch('/user/login', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({
@@ -136,7 +134,10 @@
 
     // 将哈希值转换为十六进制字符串
     const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+    return hashArray.map(byte => {
+      const hex = byte.toString(16);
+      return hex.length === 1 ? '0' + hex : hex;
+    }).join('');
   }
 </script>
 </body>

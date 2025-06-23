@@ -8,6 +8,7 @@
   },
   "private": true,
   "dependencies": {
+    "@types/quill": "^2.0.14",
     "body-parser": "^1.20.3",
     "connect-timeout": "^1.9.0",
     "cookie-parser": "^1.4.7",

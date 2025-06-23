@@ -18,7 +18,7 @@ function handleError(info, error, message) {
  */
 async function insertChapter(docName, title) {
     try {
-        const response = await fetch(`/chapter`, {
+        const response = await fetch(`/api/chapter`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ doc_name: docName, title: title })
@@ -40,7 +40,7 @@ async function insertChapter(docName, title) {
  */
 async function updateChapter(docName, chapterId, title,sortOrder) {
     try {
-        const response = await fetch(`/chapter`, {
+        const response = await fetch(`/api/chapter`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ doc_name: docName, chapter_id: chapterId, title: title, sort_order: sortOrder })
@@ -60,7 +60,7 @@ async function updateChapter(docName, chapterId, title,sortOrder) {
  */
 async function deleteChapter(docName, chapterId) {
     try {
-        const response = await fetch(`/chapter`, {
+        const response = await fetch(`/api/chapter`, {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ doc_name: docName, chapter_id: chapterId })
@@ -79,7 +79,7 @@ async function deleteChapter(docName, chapterId) {
  */
 async function getChapterList(docName) {
     try {
-        const response = await fetch(`/chapter?doc_name=${encodeURIComponent(docName)}`);
+        const response = await fetch(`/api/chapter?doc_name=${encodeURIComponent(docName)}`);
         const data = await response.json();
         if (!response.ok) {
             handleError('服务器获取章节列表失败:', new Error(`${response.status}:${data.err}`));

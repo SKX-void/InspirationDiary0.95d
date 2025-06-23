@@ -12,6 +12,7 @@ function handleError(info, error, message) {
     alert(`handleErrorMSG:\nprefix:${info}+\nerr:${errMsg}\nmsg:${msg}`);
 }
 
+let current_version;
 /**
  * @param {string} docName
  * @param {string|number} chapterId
@@ -37,13 +38,14 @@ async function loadPage(docName, chapterId, pageNum){
         }
         document.getElementById('page-input').textContent = checkedPageNum.toString();
         document.getElementById('page-input').value = `${checkedPageNum}`;
-        const response = await fetch(`/page?doc_name=${encodeURIComponent(docName)}&chapter_id=${chapterId}&page_num=${checkedPageNum}`);
+        const response = await fetch(`/api/page?doc_name=${encodeURIComponent(docName)}&chapter_id=${chapterId}&page_num=${checkedPageNum}`);
         const data = await response.json();
         if (!response.ok) {
             quill.setText("加载页面失败！" + data.err);
             quill.disable();
             return;
         }
+        current_version=data.current_version;
         const quillBytes = data.content;
         if (quillBytes) quill.setContents(JSON.parse(quillBytes));
         else quill.setText(data.plain_text);
@@ -63,7 +65,7 @@ async function insertPageAtEndOf(){
     const chapterId = getQueryParameter('chapter_id'); // 从 URL 中获取 chapterId
     const currentPage = getQueryParameter('page_num'); // 从 URL 中获取 lastPage
     if (!docName || !chapterId || !currentPage) {return;}
-    const response = await fetch(`/page`, {
+    const response = await fetch(`/api/page`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -87,13 +89,13 @@ async function deletePageAt(){
     const docName = getQueryParameter('doc_name'); // 从 URL 中获取 docName
     const chapterId = getQueryParameter('chapter_id'); // 从 URL 中获取 chapterId
     const currentPage = getQueryParameter('page_num'); // 从 URL 中获取 lastPage
-    if(parseInt(currentPage)===1 && parseInt(document.getElementById('total-pages').dataset.value===1)){
+    if(parseInt(currentPage)===1 && parseInt(document.getElementById('total-pages').dataset.value)===1){
         quill.root.innerHTML = '';
         await updatePage();
         return;
     }
     try {
-        const response = await fetch(`/page`, {
+        const response = await fetch(`/api/page`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json'
@@ -138,7 +140,7 @@ async function updatePage() {
         const text = quill.getText();
         const selection = quill.getSelection();
         const last_local = selection ? selection.index : 0;
-        const response = await fetch(`/page`, {
+        const response = await fetch(`/api/page`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -149,7 +151,8 @@ async function updatePage() {
                 page_num: pageNum,
                 content: JSON.stringify(quillText),
                 plain_text: text,
-                last_local: last_local
+                last_local: last_local,
+                current_version:current_version
             })
         });
         const data = await response.json();
@@ -170,7 +173,9 @@ async function updatePage() {
 }
 
 async function autoCutPage() {
-    const maxPageNumber = document.getElementById("auto-cut-input").value; // 每页最大字符数
+    const cutInput = document.getElementById("auto-cut-input");
+    if(!(cutInput instanceof HTMLElement))return;
+    const maxPageNumber = cutInput.value; // 每页最大字符数
     const cutStringList = ["\n", ".", "。", "!", "！", "?", "？"]; // 分割字符串列表
     // 获取Quill编辑器的纯文本内容和Delta内容
     let totalText = quill.getText();
@@ -230,11 +235,11 @@ async function autoCutPage() {
             toolbar: false // 不显示工具栏
         }
     });
+    if(totalText.length < maxPageNumber){
+        contentList.push(totalDelta);
+    }
     while (totalText.length > maxPageNumber) {
-        if(totalText.length < maxPageNumber){
-            contentList.push(totalDelta);
-            break;
-        }
+
         let cutIndex = getTextCutIndex(totalText, maxPageNumber, cutStringList);
         let leftDelta = getDeltaContentUpToIndex(totalDelta, cutIndex);
         let rightDelta = getRemainingDelta(totalDelta, cutIndex);
@@ -246,7 +251,7 @@ async function autoCutPage() {
 
     async function insertPageAtEndOf(docName, chapterId, currentPage, rtfBytes, text, lastLocal){
         if (!docName || !chapterId || !currentPage) {return false;}
-        const response = await fetch(`/page`, {
+        const response = await fetch(`/api/page`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -307,13 +312,14 @@ async function goToPage(docName, chapterId, page_num,update=true){
  */
 async function getTotalPages(docName, chapterId){
     try {
-        const response = await fetch(`/page/total?doc_name=${encodeURIComponent(docName)}&chapter_id=${chapterId}`);
+        const response = await fetch(`/api/page/total?doc_name=${encodeURIComponent(docName)}&chapter_id=${chapterId}`);
         const data = await response.json();
         if (!response.ok){
             handleError("服务端获取总页数失败", new Error(`${response.status}:${data.err}`),data.message);
-            document.getElementById('total-pages').textContent = "/获取总页数失败！"+error.message;
+            document.getElementById('total-pages').textContent = "/获取总页数失败！";
             return;
         }
+        if(!data.total_pages)data.total_pages = -1;
         document.getElementById('total-pages').textContent = "/ "+data.total_pages;
         document.getElementById('total-pages').dataset.value = data.total_pages;
     } catch (error) {
@@ -330,7 +336,7 @@ async function getTotalPages(docName, chapterId){
 async function updateChapterLastPage(docName, chapterId, lastPage) {
     if (!docName || !chapterId || !lastPage) return;
     try {
-        const response = await fetch(`/chapter/last-page`, {
+        const response = await fetch(`/api/chapter/last-page`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -338,6 +344,7 @@ async function updateChapterLastPage(docName, chapterId, lastPage) {
             body: JSON.stringify({doc_name: docName, chapter_id: chapterId, last_page: lastPage})
         });
         const title = await response.json();
+        if (response.status === 401)return;
         if (!response.ok) handleError('服务端记录最后一页发生错误：' ,new Error(`${response.status}:${title.err}`));
     } catch (error) {
         handleError('记录最后一页未知错误:', error);

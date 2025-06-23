@@ -10,7 +10,10 @@ async function insertDoc() {
             },
             body: JSON.stringify({ doc_name: docName })
         });
-        if(!response.ok)alert("发生错误："+response.json().err);
+        if(!response.ok){
+            const error = await response.json();
+            alert("发生错误："+error.err);
+        }
         docNameInput.value = '';
         await selectDocList();
     } catch (error) {
@@ -30,7 +33,10 @@ async function deleteDoc() {
             },
             body: JSON.stringify({ doc_name: selectedDocName })
         });
-        if(!response.ok)alert("发生错误："+response.json().err);
+        if(!response.ok){
+            const error = await response.json();
+            alert("发生错误："+error.err);
+        }
         selectedDoc.value = '';
         quill.root.innerHTML = '';
         await selectDocList();
@@ -39,10 +45,13 @@ async function deleteDoc() {
     }
 }
 async function updateDoc() {
-    const selectedDoc = document.getElementById('document-select');
-    const selectedDocName = selectedDoc.value;
+    const docElement = document.getElementById('document-select');
+    if(!(docElement instanceof HTMLSelectElement))return;
+    const selectedDocName = docElement.value;
     if (!selectedDocName) return;
-    const newDocName =document.getElementById('rename-doc-name').value;
+    const docNameInput = document.getElementById('rename-doc-name');
+    if(!(docNameInput instanceof HTMLInputElement))return;
+    const newDocName =docNameInput.value;
     try {
         const response = await fetch(`/doc`, {
             method: 'PUT',
@@ -51,7 +60,10 @@ async function updateDoc() {
             },
             body: JSON.stringify({ old_doc_name: selectedDocName,new_doc_name: newDocName })
         });
-        if(!response.ok)alert("发生错误："+response.json().err);
+        if(!response.ok){
+            const error = await response.json();
+            alert("发生错误："+error.err);
+        }
     } catch (error) {
         alert('未知错误:', error);
     }
@@ -60,7 +72,10 @@ async function updateDoc() {
 async function selectDocList() {
     try {
         const response = await fetch('/doc');
-        if (!response.ok) alert('发生错误：' + response.json().err);
+        if (!response.ok) {
+            const error = await response.json();
+            alert('发生错误：' + error.err);
+        }
         const documents = await response.json();
         const selectElement = document.getElementById('document-select');
         selectElement.innerHTML = '<option value="">-- 未选择 --</option>';

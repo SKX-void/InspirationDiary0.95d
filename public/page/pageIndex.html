@@ -11,6 +11,7 @@
 <body>
 <h1>页面列表</h1>
 <button onclick="backTitleIndex()" id="back-title-btn">返回标题列表</button>
+<button onclick="appendPage()" id="append-page-btn">追加页面</button>
 <ul id="pageList" class="page-list"></ul>
 
 <script>
@@ -42,7 +43,7 @@
     // 获取总页数并渲染页面列表
     async function getPageList(docName, chapterId, lastPage) {
         try {
-            const response = await fetch(`/page/total?doc_name=${encodeURIComponent(docName)}&chapter_id=${chapterId}`);
+            const response = await fetch(`/api/page/total?doc_name=${encodeURIComponent(docName)}&chapter_id=${chapterId}`);
             const data = await response.json();
             if (!response.ok) {
                 handleError("服务器获取总页数失败:",new Error(`${response.status}: ${data.err}`));
@@ -88,6 +89,17 @@
 
     function backTitleIndex() {
         window.location.href = `/chapterIndex?doc_name=${encodeURIComponent(docName)}`;
+    }
+
+    async function appendPage() {
+        const response = await fetch(`/api/page/append?doc_name=${encodeURIComponent(docName)}&chapter_id=${chapterId}`
+            , { method: 'POST' }
+        );
+        const data = await response.json();
+        if (!response.ok) {
+            handleError("服务器追加页面失败:",new Error(`${response.status}: ${data.err}`));
+        }
+        await getPageList(docName, chapterId, lastPage);
     }
 </script>
 </body>

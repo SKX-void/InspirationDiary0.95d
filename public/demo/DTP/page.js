@@ -3,11 +3,14 @@ async function loadPage(docId, chapterId, pageNum){
         if(!await updatePage()){return;}
         let page=parseInt(pageNum);
         if (page < 1) {page=1;}
-        const total_pages=document.getElementById('total-pages').value;
+        const totalPagesElement = document.getElementById('total-pages');
+        if(!(totalPagesElement instanceof HTMLSpanElement))return;
+        const total_pages=totalPagesElement.value;
         if (page>total_pages){page=total_pages;}
         const response = await fetch(`/page?doc_name=${encodeURIComponent(docId)}&chapter_id=${chapterId}&page_num=${page}`);
         if (!response.ok) {
-            alert("加载页面失败！" + response.json().err);
+            const error = await response.json();
+            alert("加载页面失败！" + error.err);
             return;
         }
         const data = await response.json();
@@ -18,17 +21,19 @@ async function loadPage(docId, chapterId, pageNum){
         if (last_local) quill.setSelection(last_local, 0);
         document.getElementById('page-input').value = `${page}`;
         quill.enable();
-        await updateChapterLastPage();
+        await upChapterLastPage();
     } catch (error) {
         alert('未知错误:', error);
     }
 }
 
 async function loadLastPage() {
-    const docName = document.getElementById('document-select').value;
-    const selectElement = document.getElementById('chapter-select');
-    const chapterId = selectElement.value;
-    const lastPage = selectElement.options[selectElement.selectedIndex].getAttribute('data-last-page');
+    const docElement = document.getElementById('document-select');
+    const chapterElement = document.getElementById('chapter-select');
+    if (!(docElement instanceof HTMLSelectElement) || !(chapterElement instanceof HTMLSelectElement)) return;
+    const docName = docElement.value;
+    const chapterId = chapterElement.value;
+    const lastPage = chapterElement.options[chapterElement.selectedIndex].getAttribute('data-last-page');
     if (!chapterId) {
         quill.root.innerHTML = '';
         document.getElementById('page-input').value = '';
@@ -39,24 +44,32 @@ async function loadLastPage() {
     await loadPage(docName, chapterId, lastPage);
 }
 
+function getCurrentId() {
+    const docElement = document.getElementById('document-select');
+    const chapterElement = document.getElementById('chapter-select');
+    const pageInput = document.getElementById('page-input');
+    if (!(docElement instanceof HTMLSelectElement) || !(chapterElement instanceof HTMLSelectElement) || !(pageInput instanceof HTMLInputElement)) return {};
+    return {
+        docName : docElement.value,
+        chapterId : chapterElement.value,
+        pageNum : pageInput.value
+    }
+}
+
+
 async function goToPage(){
-    const docName = document.getElementById('document-select').value;
-    const chapterId = document.getElementById('chapter-select').value;
-    const pageNum = document.getElementById('page-input').textContent;
+    const {docName,chapterId,pageNum} = getCurrentId();
     await loadPage(docName, chapterId, pageNum);
 }
 
 async function goToPageOffset(offset){
-    const docName = document.getElementById('document-select').value;
-    const chapterId = document.getElementById('chapter-select').value;
-    const pageNum = (parseInt(document.getElementById('page-input').value) + offset).toString();
-    await loadPage(docName, chapterId, pageNum);
+    const {docName,chapterId,pageNum} = getCurrentId();
+    const pageNumOffset = parseInt(pageNum)+offset;
+    await loadPage(docName, chapterId, pageNumOffset);
 }
 
 async function insertPageAtEndOf(){
-    const docName = document.getElementById('document-select').value;
-    const chapterId = document.getElementById('chapter-select').value;
-    const currentPage = document.getElementById('page-input').value;
+    const {docName,chapterId,pageNum} = getCurrentId();
     const response = await fetch(`/page`, {
         method: 'POST',
         headers: {
@@ -65,22 +78,20 @@ async function insertPageAtEndOf(){
         body: JSON.stringify({
             doc_name: docName,
             chapter_id: chapterId,
-            page_num: currentPage
+            page_num: pageNum
         })
     });
     const data = await response;
     if(!response.ok)alert("操作失败："+data.err);
-    const nextPage = parseInt(currentPage) + 1;
+    const nextPage = parseInt(pageNum) + 1;
     await getTotalPages();
     await loadPage(docName, chapterId, nextPage);
 }
 
 async function updatePage() {
     try {
-        const docName = document.getElementById('document-select').value;
-        const chapterId = document.getElementById('chapter-select').value;
-        const page = document.getElementById('page-input').value;
-        if (isNaN(parseInt(chapterId)) || isNaN(parseInt(page))) return true;
+        const {docName,chapterId,pageNum} = getCurrentId();
+        if (isNaN(parseInt(chapterId)) || isNaN(parseInt(pageNum))) return true;
         const rtfText = quill.getContents();
         const text = quill.getText();
         const selection = quill.getSelection();
@@ -93,7 +104,7 @@ async function updatePage() {
             body: JSON.stringify({
                 doc_name: docName,
                 chapter_id: chapterId,
-                page_num: page,
+                page_num: pageNum,
                 content: JSON.stringify(rtfText),
                 plain_text: text,
                 last_local: last_local
@@ -111,16 +122,22 @@ async function updatePage() {
     }
 }
 
+/**
+ * @typedef {Object} PageTotalResponse
+ * @property {number} [total_pages]
+ * @property {string} [err]
+ */
 async function getTotalPages(){
-    const docName = document.getElementById('document-select').value;
-    const chapterId = document.getElementById('chapter-select').value;
+    const {docName,chapterId} = getCurrentId();
     try {
         const response = await fetch(`/page/total?doc_name=${encodeURIComponent(docName)}&chapter_id=${chapterId}`);
+        /** @type {PageTotalResponse} */
         const data = await response.json();
         if (!response.ok) {
             alert("获取总页数失败！" + data.err);
             return;
         }
+        //if(!(data instanceof ))return;
         document.getElementById('total-pages').textContent = "/ "+data.total_pages;
         document.getElementById('total-pages').value = data.total_pages;
     } catch (error) {
@@ -129,10 +146,10 @@ async function getTotalPages(){
 }
 
 async function deletePageAt(){
-    const docName = document.getElementById('document-select').value;
-    const chapterId = document.getElementById('chapter-select').value;
-    const page = document.getElementById('pageNum-input').value;
-    if(parseInt(page)===1 && parseInt(document.getElementById('total-pages').value)===1){
+    const {docName,chapterId,pageNum} = getCurrentId();
+    const totalPagesElement = document.getElementById('total-pages');
+    if(!(totalPagesElement instanceof HTMLSpanElement))return;
+    if(parseInt(pageNum)===1 && parseInt(totalPagesElement.value)===1){
         quill.root.innerHTML = '';
         return;
     }
@@ -142,15 +159,15 @@ async function deletePageAt(){
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({doc_name: docName, chapter_id: chapterId, page_num: page})
+            body: JSON.stringify({doc_name: docName, chapter_id: chapterId, page_num: pageNum})
         });
         const data = await response.json();
         if(!response.ok)alert("操作失败："+data.err);
         let toPage;
-        if(parseInt(page)!==1){
-            toPage=(parseInt(page)-1).toString();
+        if(parseInt(pageNum)!==1){
+            toPage=(parseInt(pageNum)-1).toString();
         }else {
-            toPage=(parseInt(page)).toString();
+            toPage=(parseInt(pageNum)).toString();
         }
         await loadPage(docName, chapterId, toPage);
     } catch (error) {

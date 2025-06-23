@@ -1,8 +1,11 @@
-async function insertChapter(){
-    const docName = document.getElementById('document-select').value;
-    const title = document.getElementById('new-chapter-name').value;
+async function insChapter(){
+    const docElement = document.getElementById('document-select');
+    const chapterElement = document.getElementById('new-chapter-name');
+    if (!(docElement instanceof HTMLSelectElement) || !(chapterElement instanceof HTMLInputElement)) return;
+    const docName = docElement.value;
+    const title = chapterElement.value;
     try {
-        const response = await fetch(`/chapter`, {
+        const response = await fetch(`/api/chapter`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -17,14 +20,17 @@ async function insertChapter(){
         }
 }
 
-async function updateChapter(){
-    const docName = document.getElementById('document-select').value;
-    const chapterId = document.getElementById('chapter-select').value;
-    const title = document.getElementById("chapter-select").options[document.getElementById("chapter-select").selectedIndex].text;
-    const sortOrder = document.getElementById("chapter-select").options[document.getElementById("chapter-select").selectedIndex].getAttribute('data-sort-key');
+async function upChapter(){
+    const docElement = document.getElementById('document-select');
+    const chapterElement = document.getElementById('chapter-select');
+    if (!(docElement instanceof HTMLSelectElement) || !(chapterElement instanceof HTMLSelectElement)) return;
+    const docName = docElement.value;
+    const chapterId = chapterElement.value;
+    const title = chapterElement.options[chapterElement.selectedIndex].text;
+    const sortOrder = chapterElement.options[chapterElement.selectedIndex].getAttribute('data-sort-key');
     if (!chapterId) return;
     try {
-        const response = await fetch(`/chapter`, {
+        const response = await fetch(`/api/chapter`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -39,14 +45,18 @@ async function updateChapter(){
     }
 }
 
-async function updateChapterLastPage() {
-    const docName = document.getElementById('document-select').value;
-    if (!docName) return;
-    const chapterId = document.getElementById('chapter-select').value;
-    if (!chapterId) return;
-    const lastPage = document.getElementById('page-input').value;
+async function upChapterLastPage() {
+    const docElement = document.getElementById('document-select');
+    const chapterElement = document.getElementById('chapter-select');
+    if (!(docElement instanceof HTMLSelectElement) || !(chapterElement instanceof HTMLSelectElement)) return;
+    const docName = docElement.value;
+    const chapterId = chapterElement.value;
+    if (!docName || !chapterId) return;
+    const pageInput = document.getElementById('page-input');
+    if (!(pageInput instanceof HTMLInputElement)) return;
+    const lastPage = pageInput.value;
     try {
-        const response = await fetch(`/chapter/last-page`, {
+        const response = await fetch(`/api/chapter/last-page`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json'
@@ -60,12 +70,15 @@ async function updateChapterLastPage() {
     }
 }
 
-async function deleteChapter(){
-    const docName = document.getElementById('document-select').value;
-    const chapterId = document.getElementById('chapter-select').value;
-    if (!chapterId) return;
+async function delChapter(){
+    const docElement = document.getElementById('document-select');
+    const chapterElement = document.getElementById('chapter-select');
+    if (!(docElement instanceof HTMLSelectElement) || !(chapterElement instanceof HTMLSelectElement)) return;
+    const docName = docElement.value;
+    const chapterId = chapterElement.value;
+    if (!docName || !chapterId) return;
     try {
-        const response = await fetch(`/chapter`, {
+        const response = await fetch(`/api/chapter`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json'
@@ -80,7 +93,9 @@ async function deleteChapter(){
     }
 }
 async function selectChapterList(){
-    const docName = document.getElementById('document-select').value;
+    const docElement = document.getElementById('document-select');
+    if (!(docElement instanceof HTMLSelectElement)) return;
+    const docName = docElement.value;
     if (!docName) {
         document.getElementById('chapter-select').innerHTML = '<option value="">-- 未选择 --</option>';
         quill.root.innerHTML = '';
@@ -88,7 +103,7 @@ async function selectChapterList(){
         return;
     }
     try {
-        const response = await fetch(`/chapter?doc_name=${docName}`);
+        const response = await fetch(`/api/chapter?doc_name=${encodeURIComponent(docName)}`);
         const chapters = await response.json();
         if (!response.ok) {
             alert('获取章节列表发生错误：' + chapters.err);

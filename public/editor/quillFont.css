@@ -1,0 +1,51 @@
+/* 移除默认 ::before 内容 */
+.ql-font .ql-picker-item::before {
+    content: none !important;
+}
+.ql-font-simsun   { font-family: 'SimSun', '宋体', serif; }
+.ql-font-simhei   { font-family: 'SimHei', '黑体', sans-serif; }
+.ql-font-kaiti    { font-family: 'KaiTi', '楷体', serif; }
+.ql-font-fangsong { font-family: 'FangSong', '仿宋', serif; }
+.ql-font-yahei    { font-family: 'Microsoft YaHei', '微软雅黑', sans-serif; }
+
+
+
+
+.ql-snow .ql-picker.ql-font .ql-picker-label::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item::before {
+    content: '';
+}
+
+/* 自定义字体显示名称 */
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-value="sans-serif"]::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="sans-serif"]::before {
+    content: '无衬线';
+}
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-value="serif"]::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="serif"]::before {
+    content: '衬线';
+}
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-value="monospace"]::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="monospace"]::before {
+    content: '等宽';
+}
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-value="simsun"]::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="simsun"]::before {
+    content: '宋体';
+}
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-value="simhei"]::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="simhei"]::before {
+    content: '黑体';
+}
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-value="kaiti"]::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="kaiti"]::before {
+    content: '楷体';
+}
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-value="fangsong"]::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="fangsong"]::before {
+    content: '仿宋';
+}
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-value="yahei"]::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="yahei"]::before {
+    content: '微软雅黑';
+}
