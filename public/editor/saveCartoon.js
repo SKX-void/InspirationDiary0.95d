@@ -145,7 +145,7 @@ class SaveCartoon {
 
 
 
-    private static _mask(){
+    static _mask(){
         // 创建遮罩层
         this.overlay = document.createElement('div');
         Object.assign(this.overlay.style, {
