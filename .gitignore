@@ -2,3 +2,4 @@
 /.idea/
 /DB/doc/*.sqlite
 /identifier.sqlite
+/public/demo/
