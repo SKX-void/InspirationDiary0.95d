@@ -1,16 +1,13 @@
 body {
     font-family: Arial, sans-serif;
-    margin: 20px;
+    display: flex;
+    flex-direction: column;
+    height: 95vh;
 }
-#editor-container {
-    height: 75vh;
-    margin-bottom: 20px;
+.editor-container {
+    flex: 1;
+    overflow: auto;
 
-}
-@media (max-width: 600px) {
-    #editor-container {
-        height: 250px;
-    }
 }
 .form-group {
     margin-bottom: 15px;
@@ -18,3 +15,6 @@ body {
 .hidden {
     display: none;
 }
+
+
+

@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册测试demo</title>
+    <style>
+        /* 全局样式 */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 95vh;
+        }
+
+        /* 注册表单容器 */
+        .register-container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        /* 标题 */
+        .register-container h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        /* 输入框样式 */
+        .register-container input[type="text"],
+        .register-container input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        /* 按钮样式 */
+        .register-container button {
+            width: 48%;
+            padding: 10px;
+            margin: 10px 1%;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        /* 确定按钮 */
+        .register-container button.confirm {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .register-container button.confirm:hover {
+            background-color: #0056b3;
+        }
+
+        /* 取消按钮 */
+        .register-container button.cancel {
+            background-color: #e74c3c;
+            color: white;
+        }
+
+        .register-container button.cancel:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+<!-- 注册表单 -->
+<div class="register-container">
+    <h2>注册测试demo</h2>
+    <form id="registerForm">
+        <label for="username"></label><input type="text" id="username" placeholder="用户名" required><br>
+        <label for="password"></label><input type="password" id="password" placeholder="密码" required><br>
+        <label for="registrationCode"></label><input type="text" id="registrationCode" placeholder="注册码" required><br>
+        <button type="button" class="confirm" id="registerBtn">确定</button>
+        <button type="button" class="cancel" onclick="window.location.href='/login'">取消</button>
+    </form>
+</div>
+
+<!-- 基本 JavaScript 验证 -->
+<script>
+    document.getElementById('registerBtn').addEventListener('click', async function(event) {
+        try {
+            const unIn = document.getElementById('username');
+            const pwIn = document.getElementById('password');
+            const regIn = document.getElementById('registrationCode');
+            if(!(unIn instanceof HTMLInputElement && pwIn instanceof HTMLInputElement && regIn instanceof HTMLInputElement))return;
+            const username = unIn.value;
+            const password = await hashPassword(pwIn.value);
+            const registrationCode = regIn.value;
+
+            if (!username || !password || !registrationCode) {
+                event.preventDefault();
+                alert('所有字段都必须填写！');
+                return;
+            }
+
+            const response = await fetch('/user/register', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    username,
+                    password,
+                    registrationCode
+                })
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                alert('注册成功！');
+                window.location.href = '/login';
+            } else {
+                alert('注册失败！' + data.msg);
+            }
+        } catch (error) {
+            console.error(error);
+            alert('发生错误：' + error.message);
+        }
+    });
+
+    // 使用 crypto.subtle 对密码进行 SHA-256 哈希处理
+    async function hashPassword(password) {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(password);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(byte => {
+            const hex = byte.toString(16);
+            return hex.length === 1 ? '0' + hex : hex;
+        }).join('');
+    }
+</script>
+</body>
+</html>
+
+
+

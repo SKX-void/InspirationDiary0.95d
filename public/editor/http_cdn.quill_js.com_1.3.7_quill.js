@@ -11142,7 +11142,7 @@ var Syntax = function (_Module) {
     var _this2 = _possibleConstructorReturn(this, (Syntax.__proto__ || Object.getPrototypeOf(Syntax)).call(this, quill, options));
 
     if (typeof _this2.options.highlight !== 'function') {
-      throw new Error('Syntax module requires highlight.js. Please include the library on the page before Quill.');
+      throw new Error('Syntax module requires highlight.js. Please include the library on the pageNum before Quill.');
     }
     var timer = null;
     _this2.quill.on(_quill2.default.events.SCROLL_OPTIMIZE, function () {

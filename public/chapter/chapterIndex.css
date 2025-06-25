@@ -2,18 +2,18 @@ body {
     font-family: Arial, sans-serif;
     margin: 20px;
 }
-.title-list {
+.chapter-list {
     list-style-type: none;
     padding: 0;
 }
-.title-item {
+.chapter-item {
     margin: 10px 0;
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 5px;
     cursor: pointer;
 }
-.title-item:hover {
+.chapter-item:hover {
     background-color: #f9f9f9;
 }
 /* 模态框样式 */

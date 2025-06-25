@@ -1,58 +1,93 @@
-// 获取文档列表的函数
-async function fetchDocumentList() {
-    try {
-        const response = await fetch('/doc');
-        if (!response.ok) handleError("服务器返回错误：", new Error('无法获取文档列表'));
-        const data = await response.json(); // 假设返回的是包含 doc_id 和 doc_name 的数组
+/**
+ * 错误处理函数
+ * @param {string} info 错误信息前缀
+ * @param {Error} error 错误对象
+ * @param {string|undefined} message 自定义错误信息
+ */
+function handleError(info, error, message) {
+    let errMsg="no err mag";
+    if(error)errMsg=error.message;
+    let msg="no msg";
+    if(message)msg=message;
+    alert(`handleErrorMSG:\nprefix:${info}+\nerr:${errMsg}\nmsg:${msg}`);
+}
 
-        renderDocumentList(data);
+// 获取文档列表的函数
+async function getDocumentList() {
+    try {
+        const response = await fetch('/api/doc');
+        const docs = await response.json();
+        if (!response.ok) {
+            handleError("服务器获取文档列表错误：", new Error(`${response.status}: ${docs.err}`));
+            const docList = document.getElementById('docList');
+            if(docList)docList.innerHTML = '<li>加载文档列表失败，请稍后重试。</li>';
+            return;
+        }
+        renderDocumentList(docs);
     } catch (error) {
-        console.error('请求失败:', error);
-        document.getElementById('docList').innerHTML = '<li>加载文档列表失败，请稍后重试。</li>';
+        handleError("获取文档列表未知错误：", error);
+        const docList = document.getElementById('docList');
+        if(docList)docList.innerHTML = '<li>加载文档列表失败，请稍后重试。</li>';
     }
 }
 
-// 修改文档
-async function updateDocument(docId, docName) {
+/**
+ * 修改文档
+ * @param {string} oldDocName - 旧文档名称
+ * @param {string} newDocName - 新文档名称
+ */
+async function updateDocument(oldDocName, newDocName) {
     try {
-        const response = await fetch('/doc', {
+        const response = await fetch('/api/doc', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ doc_id: docId, doc_name: docName })
+            body: JSON.stringify({ old_doc_name: oldDocName, new_doc_name: newDocName })
         });
-        if (!response.ok) handleError("服务器返回错误：", new Error('修改文档失败'));
-        return await response.json();
+        const data = await response.json();
+        if (!response.ok) {
+            handleError("服务器修改文档失败", new Error(`${response.status}: ${data.err}`));
+        }
     } catch (error) {
-        console.error('Error updating document:', error);
+        handleError('修改文档未知错误：', error);
     }
 }
 
-// 删除文档
-async function deleteDocument(docId) {
+/**
+ * 删除文档
+ * @param {string} docName - 文档名称
+ */
+async function deleteDocument(docName) {
     try {
-        const response = await fetch('/doc', {
+        const response = await fetch('/api/doc', {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ doc_id: docId })
+            body: JSON.stringify({ doc_name: docName })
         });
-        if (!response.ok) handleError("服务器返回错误：", new Error('删除文档失败'));
-        return await response.json();
+        const data = await response.json();
+        if (!response.ok){
+            handleError("服务器删除文档失败：", new Error(`${response.status}: ${data.err}`));
+        }
     } catch (error) {
-        console.error('Error deleting document:', error);
+        handleError('删除文档未知错误:', error);
     }
 }
 
-// 插入新文档
+/**
+ * 插入文档
+ * @param {string} docName
+ */
 async function insertDocument(docName) {
     try {
-        const response = await fetch('/doc', {
+        const response = await fetch('/api/doc', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ doc_name: docName })
         });
-        if (!response.ok) handleError("服务器返回错误：", new Error('插入文档失败'));
-        return await response.json();
+        const data = await response.json();
+        if (!response.ok) {
+            handleError("服务器插入文档失败：", new Error(`${response.status}: ${data.err}`));
+        }
     } catch (error) {
-        console.error('Error inserting document:', error);
+        handleError('插入文档未知错误:', error);
     }
 }
