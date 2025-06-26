@@ -34,7 +34,6 @@ declare module 'express' {
 // 处理登录请求
 router.post('/user/login', async (req: express.Request<{}, {}, { username: string, password: string }>, res) => {
     const {username, password} = req.body;
-    //console.log(username, password);
     if(!username ||!password){
         req.session.user = "none";
         req.session.level = 0;
@@ -49,7 +48,7 @@ router.post('/user/login', async (req: express.Request<{}, {}, { username: strin
         return;
     }
 
-    const userInfo = await checkPassword(username, password);
+    const userInfo:false|{user_id:string,level:number} = await checkPassword(username, password);
     if (userInfo) {
         req.session.user = userInfo.user_id;
         req.session.level = userInfo.level;
@@ -71,10 +70,11 @@ async function userExist(user: string) {
     }
 }
 
-async function checkPassword(user: string, password: string) {
+async function checkPassword(user: string, password: string): Promise<false|{user_id:string,level:number}> {
     try {
         const userDB = await DB.getUserDB();
-        return await userDB.getAsync('SELECT * FROM user_info WHERE name=? AND password=?', [user, password]);
+        const res:{user_id:string,level:number} = await userDB.getAsync('SELECT * FROM user_info WHERE name=? AND password=?', [user, password]);
+        return res;
     } catch (err) {
         console.log("检查密码失败：" + err);
         return false;
@@ -94,7 +94,6 @@ router.post('/user/register', async (req: express.Request<{}, {}, { username: st
     try {
         const userDB = await DB.getUserDB();
         await userDB.runAsync('INSERT INTO user_info (name, password,level) VALUES (?,?,1)', [username, password]);
-        // res.status(200).json({msg: '注册成功'});
         res.redirect('/login');//重定向
     } catch (err) {
         console.log("注册失败：" + err);

@@ -100,9 +100,9 @@ router.get('/file/docx', (req:express.Request<{},{},{},{doc_name:string,index:bo
     if (!fs.existsSync(`./DB/doc/${doc_name}.sqlite`)) {
         return res.status(400).json({ err: '文件不存在' });
     }
-    const dbPath = `./DB/doc/${doc_name}.sqlite`;//path.join('./DB', 'mydatabase.sqlite');
+    const dbPath = `./DB/doc/${doc_name}.sqlite`;
     const timestamp = Date.now();
-    const outputPath = `./DB/output/${doc_name}-${timestamp}.docx`;//path.join(__dirname, 'output', `document-${timestamp}.docx`);
+    const outputPath = `./DB/output/${doc_name}-${timestamp}.docx`;
 
     // 如果需要生成目录，则添加 --generate-toc 参数
     const args = ['./py/quill_to_docx.py', dbPath, outputPath];

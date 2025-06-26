@@ -12,7 +12,7 @@ function handleError(info, error, message) {
     alert(`handleErrorMSG:\nprefix:${info}+\nerr:${errMsg}\nmsg:${msg}`);
 }
 
-let current_version;
+
 /**
  * @param {string} docName
  * @param {string|number} chapterId
@@ -45,15 +45,15 @@ async function loadPage(docName, chapterId, pageNum){
             quill.disable();
             return;
         }
-        current_version=data.current_version;
+        window.current_version = data.current_version;
         const quillBytes = data.content;
         if (quillBytes) quill.setContents(JSON.parse(quillBytes));
         else quill.setText(data.plain_text);
         const last_local=data.last_local;
         if (last_local) quill.setSelection(last_local, 0);
         quill.enable();
-        quillTextChange=false;
-        document.getElementById('textChange').textContent = '文本已修改(翻页保存检测)：否';
+        window.quillTextChange = false;
+        document.getElementById('textChange').textContent = '💾：✅';
         await updateChapterLastPage(docName, chapterId, checkedPageNum);
     } catch (error) {
         handleError('Error loading page:', error,`From loadPage(${docName},${chapterId},${pageNum})`);
@@ -161,8 +161,8 @@ async function updatePage() {
             SaveCartoon.onSaveFailed();
             return false;
         }
-        quillTextChange = false;
-        document.getElementById('textChange').textContent = '文本已修改(翻页保存检测)：否';
+        window.quillTextChange = false;
+        document.getElementById('textChange').textContent = '💾：✅';
         SaveCartoon.onSaveSuccess();
         return true;
     } catch (error) {

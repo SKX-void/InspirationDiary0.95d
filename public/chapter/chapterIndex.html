@@ -1,245 +1,251 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>章节列表</title>
     <link href="chapterIndex.css" rel="stylesheet">
-    <style>
 
-    </style>
 </head>
+
 <body>
-<h1>章节列表</h1>
-<button onclick="backDocIndex()" id="back-chapter-btn">返回文档列表</button>
-<!-- 增加章节按钮 -->
-<button id="addChapterButton">增加章节</button>
+    <div style="display: flex;">
+        <h1>章节列表</h1>
+        <button onclick="backDocIndex()" id="back-chapter-btn"
+            style="height: auto; margin:30px;">⬅</button>
+        <button id="addChapterButton" style="height: auto;margin: 30px 0 30px 0;">➕</button>
+    </div>
 
-<!-- 章节列表 -->
-<ul id="chapterList" class="chapter-list"></ul>
+    <!-- 增加章节按钮 -->
 
-<!-- 增加章节模态框 -->
-<div id="addChapterModal" class="modal">
-    <div class="modal-content">
-        <h2>新建章节</h2>
-        <label for="newChapterInput"></label><input type="text" id="newChapterInput" placeholder="请输入章节名">
-        <div>
-            <button id="confirmAddChapter" class="confirm">确定</button>
-            <button id="cancelAddChapter" class="cancel">取消</button>
+
+    <!-- 章节列表 -->
+    <ul id="chapterList" class="chapter-list"></ul>
+
+    <!-- 增加章节模态框 -->
+    <div id="addChapterModal" class="modal">
+        <div class="modal-content">
+            <h2>新建章节</h2>
+            <input type="text" id="newChapterInput" placeholder="请输入章节名">
+            <div>
+                <button id="confirmAddChapter" class="confirm">确定</button>
+                <button id="cancelAddChapter" class="cancel">取消</button>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- 修改章节模态框 -->
-<div id="editChapterModal" class="modal">
-    <div class="modal-content">
-        <h2>修改章节</h2>
-        <label for="editChapterId">章节 ID：</label>
-        <input type="text" id="editChapterId" disabled>
-        <label for="editTitle">章节名称：</label>
-        <input type="text" id="editTitle" placeholder="请输入新的章节名">
-        <label for="editSortOrder">排序序号：</label>
-        <input type="text" id="editSortOrder">
-        <div>
-            <button id="confirmEditChapter" class="confirm">确定</button>
-            <button id="cancelEditChapter" class="cancel">取消</button>
+    <!-- 修改章节模态框 -->
+    <div id="editChapterModal" class="modal">
+        <div class="modal-content">
+            <h2>修改章节</h2>
+            <label for="editChapterId">章节 ID：</label>
+            <input type="text" id="editChapterId" disabled>
+            <label for="editTitle">章节名称：</label>
+            <input type="text" id="editTitle" placeholder="请输入新的章节名">
+            <label for="editSortOrder">排序序号：</label>
+            <input type="text" id="editSortOrder">
+            <div>
+                <button id="confirmEditChapter" class="confirm">确定</button>
+                <button id="cancelEditChapter" class="cancel">取消</button>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- 删除章节模态框 -->
-<div id="deleteChapterModal" class="modal">
-    <div class="modal-content">
-        <h2>删除章节</h2>
-        <p id="deleteChapterMessage">确定要删除此章节吗？</p>
-        <div>
-            <button id="confirmDeleteChapter" class="confirm">确定</button>
-            <button id="cancelDeleteChapter" class="cancel">取消</button>
+    <!-- 删除章节模态框 -->
+    <div id="deleteChapterModal" class="modal">
+        <div class="modal-content">
+            <h2>删除章节</h2>
+            <p id="deleteChapterMessage">确定要删除此章节吗？</p>
+            <div>
+                <button id="confirmDeleteChapter" class="confirm">确定</button>
+                <button id="cancelDeleteChapter" class="cancel">取消</button>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- 右键菜单 -->
-<div id="contextMenu" class="context-menu">
-    <ul>
-        <li id="editChapterOption">修改章节</li>
-        <li id="deleteChapterOption">删除章节</li>
-    </ul>
-</div>
+    <!-- 右键菜单 -->
+    <div id="contextMenu" class="context-menu">
+        <ul>
+            <li id="editChapterOption">修改章节</li>
+            <li id="deleteChapterOption">删除章节</li>
+        </ul>
+    </div>
 
-<script src="chapterImpl.js"></script>
-<script>
-    const docName = getQueryParameter('doc_name');
-    if (!docName) {
-        document.getElementById('chapterList').innerHTML = '<li>缺少文档 ID，请检查 URL。</li>';
-    } else {
-        getChapterList(docName);
-    }
-
-    let currentChapterId = null;
-    let currentTitle = null;
-    let currentSortOrder = null;
-
-    // 获取 URL 中的参数
-    function getQueryParameter(paramName) {
-        const queryString = window.location.search;
-        const urlParams = new URLSearchParams(queryString);
-        return urlParams.get(paramName);
-    }
-
-    // 渲染章节列表
-    function renderChapterList(chapters) {
-        const chapterListElement = document.getElementById('chapterList');
-        chapterListElement.innerHTML = '';
-
-        if (chapters.length === 0) {
-            chapterListElement.innerHTML = '<li>暂无章节</li>';
-            return;
+    <script src="chapterImpl.js"></script>
+    <script>
+        const docName = getQueryParameter('doc_name');
+        if (!docName) {
+            document.getElementById('chapterList').innerHTML = '<li>缺少文档 ID，请检查 URL。</li>';
+        } else {
+            getChapterList(docName);
         }
 
-        chapters.forEach(chapter => {
-            const listItem = document.createElement('li');
-            listItem.className = 'chapter-item';
-            listItem.textContent = chapter.title;
+        let currentChapterId = null;
+        let currentTitle = null;
+        let currentSortOrder = null;
 
-            listItem.addEventListener('click', () => {
-                window.location.href = `/pageIndex?doc_name=${encodeURIComponent(docName)}&chapter_id=${chapter.chapter_id}&last_page=${chapter.last_page}`;
-            });
+        // 获取 URL 中的参数
+        function getQueryParameter(paramName) {
+            const queryString = window.location.search;
+            const urlParams = new URLSearchParams(queryString);
+            return urlParams.get(paramName);
+        }
 
-            listItem.dataset.chapterId = chapter.chapter_id;
-            listItem.dataset.title = chapter.title;
-            listItem.dataset.sortOrder = chapter.sort_order;
+        // 渲染章节列表
+        function renderChapterList(chapters) {
+            const chapterListElement = document.getElementById('chapterList');
+            chapterListElement.innerHTML = '';
 
-            chapterListElement.appendChild(listItem);
-        });
-    }
-
-
-
-    const addChapterButton = document.getElementById('addChapterButton');
-    const addChapterModal = document.getElementById('addChapterModal');
-    const confirmAddChapter = document.getElementById('confirmAddChapter');
-    const cancelAddChapter = document.getElementById('cancelAddChapter');
-    const newChapterInput = document.getElementById('newChapterInput');
-
-    const contextMenu = document.getElementById('contextMenu');
-    const editChapterOption = document.getElementById('editChapterOption');
-    const deleteChapterOption = document.getElementById('deleteChapterOption');
-
-    const editChapterModal = document.getElementById('editChapterModal');
-    const editChapterId = document.getElementById('editChapterId');
-    const editTitle = document.getElementById('editTitle');
-    const editSortOrder = document.getElementById('editSortOrder');
-    const confirmEditChapter = document.getElementById('confirmEditChapter');
-    const cancelEditChapter = document.getElementById('cancelEditChapter');
-
-    // 删除章节模态框
-    const deleteChapterModal = document.getElementById('deleteChapterModal');
-    const confirmDeleteChapter = document.getElementById('confirmDeleteChapter');
-    const cancelDeleteChapter = document.getElementById('cancelDeleteChapter');
-
-    // 页面加载时获取 docName 并加载章节列表
-    window.addEventListener('DOMContentLoaded', () => {
-        // 绑定增加章节按钮事件
-        addChapterButton.addEventListener('click', () => {
-            addChapterModal.style.display = 'block';
-        });
-        cancelAddChapter.addEventListener('click', () => {
-            addChapterModal.style.display = 'none';
-            newChapterInput.value = '';
-        });
-        confirmAddChapter.addEventListener('click', async () => {
-            const title = newChapterInput.value.trim();
-            if (!title) {
-                alert('章节名不能为空！');
+            if (chapters.length === 0) {
+                chapterListElement.innerHTML = '<li>暂无章节</li>';
                 return;
             }
 
-            try {
-                await insertChapter(docName, title);
-                await getChapterList(docName);
+            chapters.forEach(chapter => {
+                const listItem = document.createElement('li');
+                listItem.className = 'chapter-item';
+                listItem.textContent = chapter.title;
+
+                listItem.addEventListener('click', () => {
+                    window.location.href = `/pageIndex?doc_name=${encodeURIComponent(docName)}&chapter_id=${chapter.chapter_id}&last_page=${chapter.last_page}`;
+                });
+
+                listItem.dataset.chapterId = chapter.chapter_id;
+                listItem.dataset.title = chapter.title;
+                listItem.dataset.sortOrder = chapter.sort_order;
+
+                chapterListElement.appendChild(listItem);
+            });
+        }
+
+
+
+        const addChapterButton = document.getElementById('addChapterButton');
+        const addChapterModal = document.getElementById('addChapterModal');
+        const confirmAddChapter = document.getElementById('confirmAddChapter');
+        const cancelAddChapter = document.getElementById('cancelAddChapter');
+        const newChapterInput = document.getElementById('newChapterInput');
+
+        const contextMenu = document.getElementById('contextMenu');
+        const editChapterOption = document.getElementById('editChapterOption');
+        const deleteChapterOption = document.getElementById('deleteChapterOption');
+
+        const editChapterModal = document.getElementById('editChapterModal');
+        const editChapterId = document.getElementById('editChapterId');
+        const editTitle = document.getElementById('editTitle');
+        const editSortOrder = document.getElementById('editSortOrder');
+        const confirmEditChapter = document.getElementById('confirmEditChapter');
+        const cancelEditChapter = document.getElementById('cancelEditChapter');
+
+        // 删除章节模态框
+        const deleteChapterModal = document.getElementById('deleteChapterModal');
+        const confirmDeleteChapter = document.getElementById('confirmDeleteChapter');
+        const cancelDeleteChapter = document.getElementById('cancelDeleteChapter');
+
+        // 页面加载时获取 docName 并加载章节列表
+        window.addEventListener('DOMContentLoaded', () => {
+            // 绑定增加章节按钮事件
+            addChapterButton.addEventListener('click', () => {
+                addChapterModal.style.display = 'block';
+            });
+            cancelAddChapter.addEventListener('click', () => {
                 addChapterModal.style.display = 'none';
                 newChapterInput.value = '';
-            } catch (error) {
-                console.error('添加章节失败:', error);
-                alert('添加章节失败，请稍后重试。');
-            }
-        });
+            });
+            confirmAddChapter.addEventListener('click', async () => {
+                const title = newChapterInput.value.trim();
+                if (!title) {
+                    alert('章节名不能为空！');
+                    return;
+                }
 
-        // 右键菜单相关逻辑
-        document.addEventListener('contextmenu', (event) => {
-            const target = event.target;
-            if (target instanceof HTMLElement && target.classList.contains('chapter-item')) {
-                event.preventDefault();
+                try {
+                    await insertChapter(docName, title);
+                    await getChapterList(docName);
+                    addChapterModal.style.display = 'none';
+                    newChapterInput.value = '';
+                } catch (error) {
+                    console.error('添加章节失败:', error);
+                    alert('添加章节失败，请稍后重试。');
+                }
+            });
 
-                currentChapterId = target.dataset.chapterId;
-                currentTitle = target.dataset.title;
-                currentSortOrder = target.dataset.sortOrder;
+            // 右键菜单相关逻辑
+            document.addEventListener('contextmenu', (event) => {
+                const target = event.target;
+                if (target instanceof HTMLElement && target.classList.contains('chapter-item')) {
+                    event.preventDefault();
 
-                contextMenu.style.display = 'block';
-                contextMenu.style.left = `${event.pageX}px`;
-                contextMenu.style.top = `${event.pageY}px`;
-            } else {
+                    currentChapterId = target.dataset.chapterId;
+                    currentTitle = target.dataset.title;
+                    currentSortOrder = target.dataset.sortOrder;
+
+                    contextMenu.style.display = 'block';
+                    contextMenu.style.left = `${event.pageX}px`;
+                    contextMenu.style.top = `${event.pageY}px`;
+                } else {
+                    contextMenu.style.display = 'none';
+                }
+            });
+            document.addEventListener('click', () => {
                 contextMenu.style.display = 'none';
-            }
-        });
-        document.addEventListener('click', () => {
-            contextMenu.style.display = 'none';
-        });
+            });
 
-        // 修改章节模态框
-        editChapterOption.addEventListener('click', () => {
-            editChapterId.value = currentChapterId;
-            editTitle.value = currentTitle;
-            editSortOrder.value = currentSortOrder;
-            editChapterModal.style.display = 'block';
-            contextMenu.style.display = 'none';
-        });
-        cancelEditChapter.addEventListener('click', () => {
-            editChapterModal.style.display = 'none';
-            editChapterId.value = '';
-            editTitle.value = '';
-        });
-        confirmEditChapter.addEventListener('click', async () => {
-            const newTitle = editTitle.value.trim();
-            const newSortOrder = editSortOrder.value;
-            if (!newSortOrder) {
-                alert('排序序号不能为空！');
-                return;
-            }
-
-            try {
-                await updateChapter(docName, currentChapterId, newTitle, newSortOrder);
-                await getChapterList(docName);
+            // 修改章节模态框
+            editChapterOption.addEventListener('click', () => {
+                editChapterId.value = currentChapterId;
+                editTitle.value = currentTitle;
+                editSortOrder.value = currentSortOrder;
+                editChapterModal.style.display = 'block';
+                contextMenu.style.display = 'none';
+            });
+            cancelEditChapter.addEventListener('click', () => {
                 editChapterModal.style.display = 'none';
-            } catch (error) {
-                console.error('修改章节失败:', error);
-                alert('修改章节失败，请稍后重试。');
-            }
-        });
+                editChapterId.value = '';
+                editTitle.value = '';
+            });
+            confirmEditChapter.addEventListener('click', async () => {
+                const newTitle = editTitle.value.trim();
+                const newSortOrder = editSortOrder.value;
+                if (!newSortOrder) {
+                    alert('排序序号不能为空！');
+                    return;
+                }
 
-        deleteChapterOption.addEventListener('click', () => {
-            document.getElementById('deleteChapterMessage').textContent = `确定要删除章节 "${currentTitle}" 吗？`;
-            deleteChapterModal.style.display = 'block';
-            contextMenu.style.display = 'none';
-        });
-        cancelDeleteChapter.addEventListener('click', () => {
-            deleteChapterModal.style.display = 'none';
-        });
-        confirmDeleteChapter.addEventListener('click', async () => {
-            try {
-                await deleteChapter(docName, currentChapterId);
-                await getChapterList(docName);
+                try {
+                    await updateChapter(docName, currentChapterId, newTitle, newSortOrder);
+                    await getChapterList(docName);
+                    editChapterModal.style.display = 'none';
+                } catch (error) {
+                    console.error('修改章节失败:', error);
+                    alert('修改章节失败，请稍后重试。');
+                }
+            });
+
+            deleteChapterOption.addEventListener('click', () => {
+                document.getElementById('deleteChapterMessage').textContent = `确定要删除章节 "${currentTitle}" 吗？`;
+                deleteChapterModal.style.display = 'block';
+                contextMenu.style.display = 'none';
+            });
+            cancelDeleteChapter.addEventListener('click', () => {
                 deleteChapterModal.style.display = 'none';
-            } catch (error) {
-                console.error('删除章节失败:', error);
-                alert('删除章节失败，请稍后重试。');
-            }
+            });
+            confirmDeleteChapter.addEventListener('click', async () => {
+                try {
+                    await deleteChapter(docName, currentChapterId);
+                    await getChapterList(docName);
+                    deleteChapterModal.style.display = 'none';
+                } catch (error) {
+                    console.error('删除章节失败:', error);
+                    alert('删除章节失败，请稍后重试。');
+                }
+            });
         });
-    });
-    function backDocIndex() {
-        window.location.href = `/docIndex`;
-    }
-</script>
+        function backDocIndex() {
+            window.location.href = `/docIndex`;
+        }
+    </script>
 </body>
+
 </html>

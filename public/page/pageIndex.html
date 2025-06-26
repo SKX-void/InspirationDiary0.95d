@@ -5,13 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>页面列表</title>
     <link rel="stylesheet" href="pageIndex.css">
-    <style>
-    </style>
 </head>
 <body>
-<h1>页面列表</h1>
-<button onclick="backTitleIndex()" id="back-title-btn">返回标题列表</button>
-<button onclick="appendPage()" id="append-page-btn">追加页面</button>
+        <div style="display: flex;">
+        <h1>页面列表</h1>
+        <button onclick="backTitleIndex()" id="back-title-btn"
+            style="height: auto; margin:30px;">⬅</button>
+        <button onclick="appendPage()" id="append-page-btn" style="height: auto;margin: 30px 0 30px 0;">➕</button>
+    </div>
 <ul id="pageList" class="page-list"></ul>
 
 <script>

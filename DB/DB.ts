@@ -7,13 +7,13 @@ export default class DB {
         this.db = db;
     };
 
-    async getAsync(sql: string, params?: any): Promise<any | undefined> {
+    async getAsync(sql: string, params?: any): Promise<any> {
         return new Promise((resolve, reject) => {
             if (!this.db) {
                 reject(new Error("数据库未连接"));
                 return;
             }
-            this.db.get(sql, params, (err, row: any | undefined) => {
+            this.db.get(sql, params, (err, row: Record<any, any>) => {
                 if (err) {
                     console.error(`SQL Error: ${err.message}`, {sql, params});
                     reject(err);
@@ -71,6 +71,7 @@ export default class DB {
             await db.runAsync(DB.__strCreateIndexChapterStructure);
             await db.runAsync(DB.__strCreateTriggerSaveGlobalHistory);
             await db.runAsync(DB.__strCreateVirtualTableSearch);
+            await db.runAsync(DB.__strCreateTriggerToUpdateSearchTable);
             const initStr = `INSERT INTO document_info (doc_id, name)VALUES (1, '${doc_name}');`;
             await db.runAsync(initStr);
         } catch (error) {
@@ -120,7 +121,7 @@ export default class DB {
         }
     }
 
-    private static __strCreateTableDocumentInfo=`CREATE TABLE document_info
+    private static readonly __strCreateTableDocumentInfo=`CREATE TABLE document_info
                 (
                     doc_id       INTEGER PRIMARY KEY CHECK (doc_id = 1), -- 强制单文档
                     name         TEXT    NOT NULL,
@@ -128,7 +129,7 @@ export default class DB {
                     created_at   DATETIME         DEFAULT CURRENT_TIMESTAMP,
                     CHECK (typeof(last_chapter) = 'integer')
                 );`;
-    private static __strCreateTableChapters=`CREATE TABLE chapters
+    private static readonly __strCreateTableChapters=`CREATE TABLE chapters
                 (
                     chapter_id INTEGER PRIMARY KEY AUTOINCREMENT,
                     title      TEXT    NOT NULL,
@@ -138,7 +139,7 @@ export default class DB {
                     CHECK (typeof(last_page) = 'integer'),
                     CHECK (typeof(sort_order) = 'real')
                 );`;
-    private static __strCreateTablePages=`CREATE TABLE pages
+    private static readonly __strCreateTablePages=`CREATE TABLE pages
                 (
                     chapter_id      INTEGER NOT NULL REFERENCES chapters(chapter_id) ON DELETE CASCADE,
                     page_num        INTEGER NOT NULL CHECK (page_num > 0),
@@ -153,7 +154,7 @@ export default class DB {
                     current_version INTEGER NOT NULL DEFAULT 1,
                     PRIMARY KEY (chapter_id, page_num)
                 );`;
-    private static __strCreateTableGlobalHistory=`CREATE TABLE global_history
+    private static readonly __strCreateTableGlobalHistory=`CREATE TABLE global_history
                 (
                     history_id INTEGER PRIMARY KEY AUTOINCREMENT, -- 自增序列作为版本标识
                     chapter_id INTEGER NOT NULL,
@@ -165,7 +166,7 @@ export default class DB {
                     CHECK (typeof(page_num) = 'integer')
                     --FOREIGN KEY (chapter_id, page_num) REFERENCES pages
                 );`;
-    private static __strCreateTriggerPruneGlobalHistory=`CREATE TRIGGER prune_global_history
+    private static readonly __strCreateTriggerPruneGlobalHistory=`CREATE TRIGGER prune_global_history
                     AFTER INSERT
                     ON global_history
                 BEGIN
@@ -181,7 +182,7 @@ export default class DB {
                                          WHERE history_id IS NOT NULL -- 处理记录不足50条的情况
                     );
                 END;`;
-    private static __strCreateTriggerSaveGlobalHistory=`CREATE TRIGGER save_global_history
+    private static readonly __strCreateTriggerSaveGlobalHistory=`CREATE TRIGGER save_global_history
                     AFTER UPDATE
                     ON pages
                     FOR EACH ROW
@@ -194,7 +195,37 @@ export default class DB {
                             OLD.plain_text);
                     UPDATE pages SET current_version = current_version + 1 WHERE chapter_id = OLD.chapter_id AND page_num = OLD.page_num;
                 END;`;
-    private static __strCreateIndexChapterStructure=`CREATE INDEX idx_chapter_structure ON chapters (sort_order);`;
-    private static __strCreateVirtualTableSearch=`CREATE VIRTUAL TABLE search USING fts5(plain_text );`;
+    private static readonly __strCreateIndexChapterStructure=`CREATE INDEX idx_chapter_structure ON chapters (sort_order);`;
+    private static readonly __strCreateVirtualTableSearch=`
+    CREATE VIRTUAL TABLE search USING fts5(
+  plain_text,
+  chapter_id UNINDEXED,  -- 存储但不参与分词
+  page_num UNINDEXED,     -- 存储但不参与分词
+   tokenize = 'trigram'   -- 支持更好的中文分词
+);
+    `;
+    private static readonly __strCreateTriggerToUpdateSearchTable=`
+    -- INSERT 同步
+CREATE TRIGGER sync_search_insert AFTER INSERT ON pages
+BEGIN
+  INSERT INTO search(plain_text, chapter_id, page_num)
+  VALUES (NEW.plain_text, NEW.chapter_id, NEW.page_num);
+END;
+
+-- UPDATE 同步
+CREATE TRIGGER sync_search_update AFTER UPDATE ON pages
+WHEN OLD.plain_text != NEW.plain_text
+BEGIN
+  UPDATE search SET plain_text = NEW.plain_text
+  WHERE chapter_id = OLD.chapter_id AND page_num = OLD.page_num;
+END;
+
+-- DELETE 同步
+CREATE TRIGGER sync_search_delete AFTER DELETE ON pages
+BEGIN
+  DELETE FROM search 
+  WHERE chapter_id = OLD.chapter_id AND page_num = OLD.page_num;
+END;
+    `;
 
 }
