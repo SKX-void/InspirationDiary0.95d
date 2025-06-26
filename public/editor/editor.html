@@ -144,17 +144,6 @@
             document.getElementById('save-btn').addEventListener('click', async function () {
                 SaveCartoon.onLoading();
                 await updatePage();
-                const docName = getQueryParameter('doc_name');
-                const chapterId = getQueryParameter('chapter_id');
-                const pageNum = getQueryParameter('page_num');
-                const newVersion = await fetch(`/api/page/version?doc_name=${encodeURIComponent(docName)}&chapter_id=${encodeURIComponent(chapterId)}&page_num=${encodeURIComponent(pageNum)}}`);
-                if (newVersion.ok) {
-                    const json = await newVersion.json();
-                    current_version = json.current_version;
-                } else {
-                    const json = await newVersion.json();
-                    handleError('获取版本号失败', new Error(json.err));
-                }
                 SaveCartoon.onLoaded();
             });
 

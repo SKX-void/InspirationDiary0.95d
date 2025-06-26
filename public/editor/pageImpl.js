@@ -152,7 +152,7 @@ async function updatePage() {
                 content: JSON.stringify(quillText),
                 plain_text: text,
                 last_local: last_local,
-                current_version:current_version
+                current_version:window.current_version
             })
         });
         const data = await response.json();
@@ -164,6 +164,14 @@ async function updatePage() {
         window.quillTextChange = false;
         document.getElementById('textChange').textContent = '💾：✅';
         SaveCartoon.onSaveSuccess();
+        const newVersion = await fetch(`/api/page/version?doc_name=${encodeURIComponent(docName)}&chapter_id=${encodeURIComponent(chapterId)}&page_num=${encodeURIComponent(pageNum)}}`);
+                if (newVersion.ok) {
+                    const json = await newVersion.json();
+                    window.current_version = json.current_version;
+                } else {
+                    const json = await newVersion.json();
+                    handleError('获取版本号失败', new Error(json.err));
+                }
         return true;
     } catch (error) {
         handleError('Error updating page:', error,"FROM updatePage()");

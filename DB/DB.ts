@@ -1,6 +1,9 @@
 import sqlite3 from 'sqlite3';
 import fs from "fs";
 export default class DB {
+    private static readonly docPath: string = "./BD/doc";
+    private static readonly userDBPath: string = './DB/user/user_info.sqlite';
+
     private readonly db: sqlite3.Database;
 
     private constructor(db: sqlite3.Database) {
@@ -59,7 +62,7 @@ export default class DB {
     }
 
 
-    static async createDocDB(doc_name:string, path:string='./DB/doc'){
+    static async createDocDB(doc_name:string, path:string=this.docPath){
         try {
             const sqlite3DB = new sqlite3.Database(`${path}/${doc_name}.sqlite`);
             const db = new DB(sqlite3DB);
@@ -78,7 +81,7 @@ export default class DB {
             console.error("创建数据库未知错误：" + error);
         }
     }
-    static getDocDB(doc_name:string, path:string='./DB/doc'):DB {
+    static getDocDB(doc_name:string, path:string=this.docPath):DB {
         if(!fs.existsSync(`${path}/${doc_name}.sqlite`)){
             throw new Error("数据库不存在");
         }
@@ -90,7 +93,7 @@ export default class DB {
             throw new Error("打开数据库失败"+ error)
         }
     }
-    static async createUserDB(path: string = './DB/user/user_info.sqlite') {
+    static async createUserDB(path: string = this.userDBPath) {
         try {
             const sqlite3DB = new sqlite3.Database(path);
             const db = new DB(sqlite3DB);
@@ -109,7 +112,7 @@ export default class DB {
             console.error("创建用户数据库未知错误：" + error);
         }
     }
-    static async getUserDB(path: string = './DB/user/user_info.sqlite') {
+    static async getUserDB(path: string = this.userDBPath) {
         try {
             if (!fs.existsSync(path)) {
                 await this.createUserDB(path);

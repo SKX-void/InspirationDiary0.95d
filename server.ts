@@ -20,7 +20,7 @@ import pageRoutes from './routes/page';
 
 const config = {
     "允许游客访问": true, // 是否允许游客访问
-    "无登录调试模式": false // 是否开启调试模式，需要登录才能访问
+    "无登录调试模式": false, // 是否开启调试模式，需要登录才能访问
 }
 app.use('/api',(req:any,res:any,next)=>{
     if (config["允许游客访问"] && req.method === 'GET') {
