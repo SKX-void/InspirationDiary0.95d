@@ -151,7 +151,7 @@ class SaveCartoon {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: '9999'
+            zIndex: '100'
         });
         // 创建内容框
         this.box = document.createElement('div');

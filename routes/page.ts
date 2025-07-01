@@ -65,6 +65,7 @@ router.post('/', async (req:express.Request<{},{},{doc_name:string, chapter_id:s
         }
         await db.runAsync("INSERT INTO pages (chapter_id, page_num, content, plain_text, format) VALUES (?, ?, ?, ?, 'quill')", [chapterId, nextPage, content, plainText]);
         await db.runAsync("COMMIT");
+        res.status(200).json({msg: "保存成功", page: nextPage});
     } catch (err) {
         console.error(err);
         if (db) await db.runAsync("ROLLBACK");

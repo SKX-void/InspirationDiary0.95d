@@ -21,7 +21,7 @@ window.addEventListener('DOMContentLoaded', async function () {
         console.error('缺少元素 textChangeElement');
         return
     };
-    if (!docName || !chapterId || !pageNum) {
+    if (!docName || isNaN(chapterId) || isNaN(pageNum)) {
         this.quill.root.innerHTML = '<li>缺少 ID 位置，请检查 URL。</li>';
         return;
     }
@@ -43,7 +43,7 @@ window.addEventListener('DOMContentLoaded', async function () {
             SaveCartoon.onLoading();
             const docName = window.getQueryParameter('doc_name');
             const chapterId = parseInt(window.getQueryParameter('chapter_id'));
-            const pageNum = parseInt(window.getQueryParameter('page_num'));
+            const pageNum = parseInt(pageInputElement.value);
             await PageImpl.goToPage(docName, chapterId, pageNum, window.quillTextChange);
             SaveCartoon.onLoaded();
         }

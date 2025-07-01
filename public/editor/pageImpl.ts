@@ -12,7 +12,6 @@ class PageImpl {
         alert(`handleErrorMSG:\nprefix:${info}+\nerr:${errMsg}\nmsg:${msg}`);
     }
 
-
     static async loadPage(docName: string, chapterId: number, pageNum: number) {
         try {
             let checkedPageNum = pageNum;
@@ -30,12 +29,8 @@ class PageImpl {
                 console.error("缺少元素 next-page-btn");
                 return
             };
-            if (checkedPageNum >= totalPages) {
-                checkedPageNum = totalPages;
-                nextPageBtn.disabled = true;
-            } else {
-                nextPageBtn.disabled = false;
-            }
+            nextPageBtn.disabled = (checkedPageNum >= totalPages);
+            prevPageBtn.disabled = (checkedPageNum <= 1);
             const pageInput = document.getElementById('page-input');
             if (!(pageInput instanceof HTMLInputElement)) {
                 console.error("缺少元素 page-input");
@@ -108,10 +103,10 @@ class PageImpl {
     static async deletePageAt() {
         const docName = window.getQueryParameter('doc_name'); // 从 URL 中获取 docName
         const chapterId = parseInt(window.getQueryParameter('chapter_id')); // 从 URL 中获取 chapterId
-        const currentPage = window.getQueryParameter('page_num'); // 从 URL 中获取 lastPage
-        if (parseInt(currentPage) === 1 && parseInt(document.getElementById('total-pages')?.dataset.value ?? "0") === 1) {
+        const currentPage = parseInt(window.getQueryParameter('page_num')); // 从 URL 中获取 lastPage
+        if (currentPage === 1 && parseInt(document.getElementById('total-pages')?.dataset.value ?? "0") === 1) {
             window.quill.root.innerHTML = '';
-            if(window.quill.isEnabled())await this.updatePage();
+            if (window.quill.isEnabled()) await this.updatePage();
             return;
         }
         try {
@@ -129,8 +124,8 @@ class PageImpl {
                 return;
             }
             let toPage;
-            if (parseInt(currentPage) > 1) {
-                toPage = (parseInt(currentPage) - 1);
+            if (currentPage > 1) {
+                toPage = (currentPage - 1);
             } else {
                 toPage = 1;
             }
@@ -218,129 +213,6 @@ class PageImpl {
         }
     }
 
-    static async autoCutPage() {
-        const cutInput = document.getElementById("auto-cut-input");
-        if (!(cutInput instanceof HTMLInputElement)) {
-            console.error("缺少元素 auto-cut-input");
-            return
-        };
-        const maxPageNumber = parseInt(cutInput.value); // 每页最大字符数
-        const cutStringList = ["\n", ".", "。", "!", "！", "?", "？"]; // 分割字符串列表
-        // 获取Quill编辑器的纯文本内容和Delta内容
-        let totalText = window.quill.getText();
-        let totalDelta = window.quill.getContents();
-
-        // 获取文本分割位置的函数
-        function getTextCutIndex(text: string, maxLength: number, cutList: string[]) {
-            for (let cutString of cutList) {
-                let index = text.lastIndexOf(cutString, maxLength);
-                if (index !== -1) return index + cutString.length;
-            }
-            return maxLength;
-        }
-
-        // 根据纯文本的截断位置，分割Delta内容
-        function getDeltaContentUpToIndex(delta: any, textIndex: number) {
-            let currentLength = 0;
-            let resultDelta = [];
-            for (let op of delta.ops) {
-                if (currentLength >= textIndex) break;
-                if (typeof op.insert === 'string') {
-                    let remainingLength = textIndex - currentLength;
-                    let insertText = op.insert.slice(0, remainingLength);
-                    resultDelta.push({ insert: insertText, attributes: op.attributes });
-                    currentLength += insertText.length;
-                } else {
-                    resultDelta.push(op);
-                }
-            }
-            return { ops: resultDelta };
-        }
-
-        // 获取剩余的Delta内容
-        function getRemainingDelta(delta: any, textIndex: number) {
-            let currentLength = 0;
-            let resultDelta = [];
-            for (let op of delta.ops) {
-                if (currentLength >= textIndex) {
-                    resultDelta.push(op);
-                } else if (typeof op.insert === 'string') {
-                    let remainingLength = textIndex - currentLength;
-                    if (remainingLength < op.insert.length) {
-                        resultDelta.push({ insert: op.insert.slice(remainingLength), attributes: op.attributes });
-                    }
-                    currentLength += op.insert.length;
-                }
-            }
-            return { ops: resultDelta };
-        }
-
-        // 分页逻辑
-        let contentList = [];
-        const virtualContainer = document.createElement('div');
-        const tempQuill = new Quill(virtualContainer, {
-            theme: 'snow', // 主题可以设置为 'snow' 或 'bubble'
-            modules: {
-                toolbar: false // 不显示工具栏
-            }
-        });
-        if (totalText.length < maxPageNumber) {
-            contentList.push(totalDelta);
-        }
-        while (totalText.length > maxPageNumber) {
-
-            let cutIndex = getTextCutIndex(totalText, maxPageNumber, cutStringList);
-            let leftDelta = getDeltaContentUpToIndex(totalDelta, cutIndex);
-            let rightDelta = getRemainingDelta(totalDelta, cutIndex);
-            contentList.push(leftDelta);
-            tempQuill.setContents(rightDelta);
-            totalText = tempQuill.getText();
-            totalDelta = tempQuill.getContents();
-        }
-
-        async function insertPageAtEndOf(docName: string, chapterId: number, currentPage: number, rtfBytes: { ops: any[]; }, text: string, lastLocal: number) {
-            if (!docName || !chapterId || !currentPage) {
-                console.error("缺少必要参数 doc_name, chapter_id, page_num");
-                return false;
-            }
-            const response = await fetch(`/api/page`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    doc_name: docName,
-                    chapter_id: chapterId,
-                    page_num: currentPage,
-                    content: JSON.stringify(rtfBytes),
-                    plain_text: text,
-                    last_local: lastLocal
-                })
-            });
-            const data = await response.json();
-            if (!response.ok) {
-                console.error(response);
-                PageImpl.handleError("服务端插入页面操作失败：", new Error(`${response.status}:${data.err}`), data.message);
-                return false;
-            }
-            return true;
-        }
-
-        const docName = window.getQueryParameter('doc_name'); // 从 URL 中获取 docName
-        const chapterId = parseInt(window.getQueryParameter('chapter_id')); // 从 URL 中获取 chapterId
-        let page = parseInt(window.getQueryParameter('page_num')); // 从 URL 中获取 lastPage
-
-        window.quill.setContents(contentList[0]);
-        if(window.quill.isEnabled())await this.updatePage();
-        contentList.shift();
-        for (const item of contentList) {
-            tempQuill.setContents(item);
-            if (!await insertPageAtEndOf(docName, chapterId, page, item, tempQuill.getText(), 0)) break;
-            page++;
-        }
-        await this.goToPage(docName, chapterId, page, true);
-    }
-
     static async goToPage(docName: string, chapterId: number, page_num: number, update = true) {
         if (update && window.quill.isEnabled()) {
             const updateResult = await this.updatePage();
@@ -398,12 +270,13 @@ class PageImpl {
             });
             const title = await response.json();
             if (response.status === 401) {
-                console.log("未登录，无法更新最后一页")
+                console.warn("未登录，无法更新最后一页")
                 return
             };
             if (!response.ok) {
                 console.error(response);
-                this.handleError('服务端记录最后一页发生错误：', new Error(`${response.status}:${title.err}`));}
+                this.handleError('服务端记录最后一页发生错误：', new Error(`${response.status}:${title.err}`));
+            }
         } catch (error) {
             console.error(error);
             if (error instanceof Error) {
@@ -413,7 +286,161 @@ class PageImpl {
             }
         }
     }
+
+    //#region auto-cut-tool
+    // 获取文本分割位置的函数
+    private static getTextCutIndex(text: string, maxLength: number, cutList: string[]) {
+        for (let cutString of cutList) {
+            let index = text.lastIndexOf(cutString, maxLength);
+            if (index !== -1) return index + cutString.length;
+        }
+        return maxLength;
+    }
+    // 根据纯文本的截断位置，分割Delta内容
+    private static getDeltaContentUpToIndex(delta: any, textIndex: number) {
+        let currentLength = 0;
+        let resultDelta = [];
+        for (let op of delta.ops) {
+            if (currentLength >= textIndex) break;
+            if (typeof op.insert === 'string') {
+                let remainingLength = textIndex - currentLength;
+                let insertText = op.insert.slice(0, remainingLength);
+                resultDelta.push({ insert: insertText, attributes: op.attributes });
+                currentLength += insertText.length;
+            } else {
+                resultDelta.push(op);
+            }
+        }
+        return { ops: resultDelta };
+    }
+    // 获取剩余的Delta内容
+    private static getRemainingDelta(delta: any, textIndex: number) {
+        let currentLength = 0;
+        let resultDelta = [];
+        for (let op of delta.ops) {
+            if (currentLength >= textIndex) {
+                resultDelta.push(op);
+            } else if (typeof op.insert === 'string') {
+                let remainingLength = textIndex - currentLength;
+                if (remainingLength < op.insert.length) {
+                    resultDelta.push({ insert: op.insert.slice(remainingLength), attributes: op.attributes });
+                }
+                currentLength += op.insert.length;
+            }
+        }
+        return { ops: resultDelta };
+    }
+    private static async insertFullPageAtEndOf(docName: string, chapterId: number, currentPage: number, rtfBytes: { ops: any[]; }, text: string, lastLocal: number) {
+        const response = await fetch(`/api/page`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                doc_name: docName,
+                chapter_id: chapterId,
+                page_num: currentPage,
+                content: JSON.stringify(rtfBytes),
+                plain_text: text,
+                last_local: lastLocal
+            })
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            console.error(response);
+            PageImpl.handleError("服务端插入页面操作失败：", new Error(`${response.status}:${data.err}`), data.message);
+            return false;
+        }
+        return true;
+    }
+    private static showSaveCount(pageNumber: number) {
+        // 创建 div 元素
+        const alertDiv = document.createElement('div');
+        alertDiv.textContent = `第${pageNumber}页已完成`;
+
+        // 设置内联样式
+        Object.assign(alertDiv.style, {
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            backgroundColor: '#4CAF50',
+            color: 'white',
+            padding: '15px 25px',
+            borderRadius: '8px',
+            fontSize: '18px',
+            zIndex: '9999',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+            opacity: '1',
+            transition: 'opacity 0.5s ease-out'
+        });
+
+        // 添加到 body
+        document.body.appendChild(alertDiv);
+
+        // 延迟淡出并移除
+        setTimeout(() => {
+            alertDiv.style.opacity = '0';
+            setTimeout(() => {
+                alertDiv.remove();
+            }, 500); // 等待动画结束再删除元素
+        }, 2000); // 2秒后开始消失
+    }
+    //#endregion
+    static async autoCutPage() {
+        const cutInput = document.getElementById("auto-cut-input");
+        if (!(cutInput instanceof HTMLInputElement)) {
+            console.error("缺少元素 auto-cut-input");
+            return;
+        };
+        const maxPageNumber = parseInt(cutInput.value); // 每页最大字符数
+        const cutStringList = ["\n", ".", "。", "!", "！", "?", "？"]; // 分割字符串列表
+        // 获取Quill编辑器的纯文本内容和Delta内容
+        let totalText = window.quill.getText();
+        let totalDelta = window.quill.getContents();
+        // 分页逻辑
+        let contentList = [];
+        const virtualContainer = document.createElement('div');
+        const tempQuill = new Quill(virtualContainer, {
+            theme: 'snow', // 主题可以设置为 'snow' 或 'bubble'
+            modules: {
+                toolbar: false // 不显示工具栏
+            }
+        });
+        if (totalText.length < maxPageNumber) {
+            contentList.push(totalDelta);
+        }
+        while (totalText.length > maxPageNumber) {
+
+            let cutIndex = PageImpl.getTextCutIndex(totalText, maxPageNumber, cutStringList);
+            let leftDelta = PageImpl.getDeltaContentUpToIndex(totalDelta, cutIndex);
+            let rightDelta = PageImpl.getRemainingDelta(totalDelta, cutIndex);
+            contentList.push(leftDelta);
+            tempQuill.setContents(rightDelta);
+            totalText = tempQuill.getText();
+            totalDelta = tempQuill.getContents();
+        }
+        contentList.push(totalDelta);
+        const docName = window.getQueryParameter('doc_name'); // 从 URL 中获取 docName
+        const chapterId = parseInt(window.getQueryParameter('chapter_id')); // 从 URL 中获取 chapterId
+        const currentPage = parseInt(window.getQueryParameter('page_num')); // 从 URL 中获取 lastPage
+        let insertPage = currentPage;
+        for (const item of contentList) {
+            tempQuill.setContents(item);
+            const result = await PageImpl.insertFullPageAtEndOf(docName, chapterId, insertPage, item, tempQuill.getText(), 0);
+            if (!result) {
+                console.error("插入页面失败");
+                break;
+            }
+            insertPage++;
+            PageImpl.showSaveCount(insertPage);
+        }
+        await PageImpl.getTotalPages(docName, chapterId);
+        await PageImpl.deletePageAt();
+        await this.goToPage(docName, chapterId, insertPage - 1);
+    }
 }
+
 window.getQueryParameter = function getQueryParameter(paramName: string) {
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
