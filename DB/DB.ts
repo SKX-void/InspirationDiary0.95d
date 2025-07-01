@@ -1,8 +1,8 @@
 import sqlite3 from 'sqlite3';
 import fs from "fs";
 export default class DB {
-    private static readonly docPath: string = "./BD/doc";
-    private static readonly userDBPath: string = './DB/user/user_info.sqlite';
+    private static readonly docPath: string = "DB/doc";
+    private static readonly userDBPath: string = 'DB/user/user_info.sqlite';
 
     private readonly db: sqlite3.Database;
 

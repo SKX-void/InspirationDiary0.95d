@@ -1,3 +1,4 @@
+
 const Font = Quill.import('formats/font');
 Font.whitelist = [
     'sans-serif',
@@ -22,7 +23,7 @@ const customFonts = {
     'yahei': '微软雅黑'
 };
 class QuillToolbarModule{
-    static fullToolbarOptions = {
+    static readonly fullToolbarOptions = {
         container: [
             [{ 'font': Font.whitelist }, { 'size': ['small', false, 'large', 'huge'] }],  // 字体及大小
             ['bold', 'italic', 'underline', 'strike'],                         // 文本样式
@@ -39,22 +40,20 @@ class QuillToolbarModule{
 
         }
     };
-    // static noneToolbarOptions = {
-    //     container: [],
-    //     handlers: {}
-    // };
 }
 
-let quill = new Quill('#editor-container', {
+const quill = new Quill('#editor-container', {
     modules: {
         toolbar: QuillToolbarModule.fullToolbarOptions
     },
     theme: 'snow'
 });
 quill.disable();
+window.quill = quill;
 
-function updateFontDisplay(element) {
-    const value = element.getAttribute('data-value');
+
+function updateFontDisplay(element: Element) {
+    const value = element.getAttribute('data-value')as keyof typeof customFonts;
     if (customFonts[value]) {
         element.innerHTML = '';
         const span = document.createElement('span');
@@ -64,4 +63,10 @@ function updateFontDisplay(element) {
 }
 document.querySelectorAll('.ql-font .ql-picker-item').forEach(updateFontDisplay);
 const defaultOption = document.querySelector('.ql-font .ql-picker-label .ql-selected');
-if (defaultOption) updateFontDisplay(defaultOption.closest('.ql-picker-item'));
+if (defaultOption) {
+    const closestPickerItem = defaultOption.closest('.ql-picker-item');
+    if (closestPickerItem) { // 检查 closest 是否返回了 Element
+        updateFontDisplay(closestPickerItem);
+    }
+}
+

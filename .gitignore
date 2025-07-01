@@ -3,3 +3,4 @@
 /DB/doc/*.sqlite
 /identifier.sqlite
 /public/demo/
+/public/**/*.js

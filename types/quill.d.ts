@@ -1,6 +1,6 @@
 // types/quill.d.ts
 declare class Quill {
-    constructor(selector: string, options: { modules: { toolbar: any }, theme: string });
+    constructor(selector: string|HTMLElement, options: { modules: { toolbar: any }, theme: string });
     setContents(content: any): void;
     getContents(): { ops: any[] };
     disable(): void;
@@ -10,9 +10,15 @@ declare class Quill {
     static import(name: string, value?: any): any;
     static register(name: string, value: any): void;
     on(event: string, callback: (delta: any, oldContents: any, source: string) => void): void;
-
     getModule(moduleName: string): QuillToolbarModule | any;
-
+    enable(): void;
+    getSelection(): { index: number, length: number };
+    root: HTMLElement;
+    deleteText(index: number, length: number): void;
+    insertText(index: number, text: string, format?: string): void;
+    formatText(index: number, length: number, format: string, value: any): void;
+    removeFormat(index: number, length: number , format: string): void;
+    isEnabled(): boolean;
 }
 
 type ToolbarItem =

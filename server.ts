@@ -46,7 +46,7 @@ app.get('/', (req:any, res:any) => {
     }
 });
 //html
-app.use('/user',express.static(path.join(__dirname, 'public/user')));//外部访问根目录
+app.use('/login',express.static(path.join(__dirname, 'public/user')));//外部访问根目录
 app.get('/login', (_, res:any) => {
     res.sendFile(path.join(__dirname, 'public/user', 'login.html'));
 });

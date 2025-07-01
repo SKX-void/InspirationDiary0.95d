@@ -44,6 +44,7 @@ router.post('/', (req:express.Request<{},{},{doc_name:string}>, res) => {
     DB.createDocDB(doc_name).then(() => {
         res.status(200).json({ msg: `${doc_name}创建成功` });
     }).catch((err) => {
+        console.error(err);
         res.status(500).json({ err: err.message });
     });
 });
@@ -68,6 +69,7 @@ router.put('/', async (req: express.Request<{}, {}, { old_doc_name: string, new_
                            WHERE doc_id = 1`, [newDocName]);
         res.status(200).json({msg: '修改成功'});
     } catch (err) {
+        console.error(err);
         if (err instanceof Error) {
             res.status(500).json({err: err.message});
         } else {

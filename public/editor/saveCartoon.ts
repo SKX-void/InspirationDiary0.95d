@@ -1,7 +1,11 @@
+interface Window {
+    getQueryParameter: (name: string) => string;
+}
+
 class SaveCartoon {
-    static overlay = null;
-    static box = null;
-    static svgIconString = `
+    private static overlay: HTMLElement | null = null;
+    private static box: HTMLElement | null = null;
+    static readonly svgIconString = `
 <svg width="100" height="100" viewBox="0 0 100 100">
     <defs>
         <linearGradient id="grad">
@@ -42,7 +46,7 @@ class SaveCartoon {
     </g>
 </svg>
 `
-    static saveResult = false;
+    private static saveResult = false;
 
     static onSaving() {
         this.saveResult = true;
@@ -51,17 +55,11 @@ class SaveCartoon {
 
         this._mask();
 
-
-
-
-
-
-
         // 添加文字
         const text = document.createElement('div');
         text.textContent = '保存中...';
+        if (!(this.overlay && this.box)) return;
         this.box.appendChild(text);
-
         this.overlay.appendChild(this.box);
         document.body.appendChild(this.overlay);
     }
@@ -106,13 +104,13 @@ class SaveCartoon {
 
         // 替换内容为失败图标
         this.box.innerHTML = `
-      <svg viewBox="0 0 100 100" style="width:40px;height:40px;margin:0 auto 15px;">
-        <circle cx="50" cy="50" r="45" fill="#ff4d4f"></circle>
-        <path d="M30 50l20 20 20-20" stroke="white" stroke-width="5" fill="none"/>
-      </svg>
+      <div style="margin 20 auto">❌</div>
       <div>保存失败</div>
     `;
-
+        //<svg viewBox="0 0 100 100" style="width:40px;height:40px;margin:0 auto 15px;">
+        //        <circle cx="50" cy="50" r="45" fill="#ff4d4f"></circle>
+        //        <path d="M30 50l20 20 20-20" stroke="white" stroke-width="5" fill="none"/>
+        //      </svg>
         setTimeout(() => {
             this.saveResult = false;
             this._clear()
@@ -120,7 +118,7 @@ class SaveCartoon {
     }
 
     static _clear() {
-        if (this.overlay && this.overlay.parentNode) {
+        if (this.overlay?.parentNode) {
             this.overlay.remove();
         }
         this.overlay = null;
@@ -128,24 +126,19 @@ class SaveCartoon {
     }
 
     static onLoading() {
-        if(!this.saveResult)this._clear();
-
+        if (!this.saveResult) this._clear();
         this._mask();
-
-
-
-
+        if (!this.overlay || !this.box) return;
         this.overlay.appendChild(this.box);
         document.body.appendChild(this.overlay);
     }
+
     static onLoaded() {
         if (!this.overlay || !this.box || this.saveResult) return;
         this._clear();
     }
 
-
-
-    static _mask(){
+    static _mask() {
         // 创建遮罩层
         this.overlay = document.createElement('div');
         Object.assign(this.overlay.style, {

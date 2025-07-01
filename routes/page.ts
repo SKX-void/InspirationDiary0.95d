@@ -14,11 +14,21 @@ router.get('/', async (req: express.Request<{}, {}, {}, {
     try{
         const db = DB.getDocDB(docName);
         const page = await db.getAsync('SELECT * FROM pages WHERE pages.chapter_id =? AND pages.page_num =?', [chapterId, pageNum]);
+        if (!page) {
+            res.status(404).json({err: "Page not found"});
+            return;
+        }
         res.status(200).json(page);
-    } catch(err:any){
-        return res.status(500).json({err: err.message});
+    } catch(err){
+        console.error(err);
+                if (err instanceof Error) {
+            res.status(500).json({err: err.message});
+        } else {
+            res.status(500).json({err: "Unknown error"});
+        }
     }
 });
+
 router.get('/total', async (req: express.Request<{}, {}, {}, { doc_name: string, chapter_id: string }>, res) => {
     const docName = decodeURIComponent(req.query.doc_name);
     const chapterId = parseInt(req.query.chapter_id);
@@ -27,6 +37,7 @@ router.get('/total', async (req: express.Request<{}, {}, {}, { doc_name: string,
         const result = await db.getAsync('SELECT MAX(page_num) as total_pages FROM pages WHERE pages.chapter_id =?', [chapterId]);
         res.status(200).json(result);
     } catch (err) {
+        console.error(err);
         if (err instanceof Error) {
             res.status(500).json({err: err.message});
         } else {
@@ -35,14 +46,13 @@ router.get('/total', async (req: express.Request<{}, {}, {}, { doc_name: string,
     }
 });
 
-
 router.post('/', async (req:express.Request<{},{},{doc_name:string, chapter_id:string, page_num:string, content:string|null, plain_text:string}>, res) => {
     const docName = decodeURIComponent(req.body.doc_name);
     const chapterId = parseInt(req.body.chapter_id);
     const pageNum = parseInt(req.body.page_num);
     const nextPage = pageNum + 1;
     let content = req.body.content;
-    if (!content) content =null;
+    content ??= null;
     let plainText = req.body.plain_text;
     if (!plainText) plainText ="";
     let db = null;
@@ -56,6 +66,7 @@ router.post('/', async (req:express.Request<{},{},{doc_name:string, chapter_id:s
         await db.runAsync("INSERT INTO pages (chapter_id, page_num, content, plain_text, format) VALUES (?, ?, ?, ?, 'quill')", [chapterId, nextPage, content, plainText]);
         await db.runAsync("COMMIT");
     } catch (err) {
+        console.error(err);
         if (db) await db.runAsync("ROLLBACK");
         if(err instanceof Error){
             res.status(500).json({err: err.message});
@@ -78,7 +89,7 @@ router.put('/', async (req: express.Request<{}, {}, {
     const chapterId = parseInt(req.body.chapter_id);
     const pageNum = parseInt(req.body.page_num);
     let content = req.body.content;
-    if (!content) content = null;
+    content ??= null;
     const plainText = req.body.plain_text;
     const last_local = parseInt(req.body.last_local);
     const current_version = parseInt(req.body.current_version);
@@ -92,6 +103,7 @@ router.put('/', async (req: express.Request<{}, {}, {
         }
         res.status(200).json({msg: "更新成功", page: pageNum});
     } catch (err) {
+        console.error(err);
         if (err instanceof Error) {
             res.status(500).json({err: err.message});
         } else {
@@ -120,6 +132,7 @@ router.delete('/', async (req: express.Request<{}, {}, {
         await db.runAsync("COMMIT");
         res.status(200).json({msg: "删除成功", page: pageNum});
     } catch (err) {
+        console.error(err);
         if (db) await db.runAsync("ROLLBACK");
         if (err instanceof Error) {
             res.status(500).json({err: err.message});
@@ -142,6 +155,7 @@ router.get('/version', async (req: express.Request<{}, {}, {}, {
         const result = await db.getAsync('SELECT current_version FROM pages WHERE chapter_id = ? AND page_num = ?', [chapterId, pageNum]);
         res.status(200).json(result);
     } catch (err) {
+        console.error(err);
         if (err instanceof Error) {
             res.status(500).json({err: err.message});
         } else {
@@ -159,6 +173,7 @@ router.post('/append',async (req: express.Request<{}, {}, {}, { doc_name: string
         const nextPage = row.total_pages + 1;
         await db.runAsync("INSERT INTO pages (chapter_id, page_num, content, plain_text, format) VALUES (?, ?, '', '', 'quill')", [chapterId, nextPage]);
     } catch (err) {
+        console.error(err);
         if (err instanceof Error) {
             res.status(500).json({err: err.message});
         } else {

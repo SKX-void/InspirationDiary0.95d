@@ -82,63 +82,14 @@
 <div class="login-container">
   <h2>登录测试demo</h2>
   <form id="loginForm">
-    <label for="username"></label><input type="text" id="username" placeholder="用户名" required><br>
-    <label for="password"></label><input type="password" id="password" placeholder="密码" required><br>
+    <input type="text" id="username" placeholder="用户名" required><br>
+    <input type="password" id="password" placeholder="密码" required><br>
     <button type="button" class="confirm" id="loginBtn">确定</button>
     <button type="button" class="cancel" onclick="window.location.href='/'">取消</button>
   </form>
 </div>
 
 <!-- 基本 JavaScript 验证 -->
-<script>
-  document.getElementById('loginBtn').addEventListener('click',async function() {
-    try {
-      const unIn = document.getElementById('username');
-      const pwIn = document.getElementById('password');
-      if(!(unIn instanceof HTMLInputElement && pwIn instanceof HTMLInputElement))return;
-      const username = unIn.value;
-      const password = await hashPassword(pwIn.value);
-      const response = await fetch('/user/login', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-          username,
-          password
-        })
-      });
-      if (response.redirected) {
-        // 如果服务器返回了重定向响应
-        window.location.href = response.url; // 跳转到新的 URL
-        return;
-      }
-      const data = await response.json();
-      if (data.success) {
-        alert('登录成功！');
-        window.location.href = '/docIndex';
-      } else {
-        alert('登录失败！' + data.msg);
-      }
-    } catch (error) {
-      console.error(error);
-      alert('发生错误' + error.message);
-    }
-  });
-  // 使用 crypto.subtle 对密码进行 SHA-256 哈希处理
-  async function hashPassword(password) {
-    // 将字符串转换为 Uint8Array（字节数组）
-    const encoder = new TextEncoder();
-    const data = encoder.encode(password);
-
-    // 使用 crypto.subtle.digest 生成 SHA-256 哈希
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-
-    // 将哈希值转换为十六进制字符串
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(byte => {
-      const hex = byte.toString(16);
-      return hex.length === 1 ? '0' + hex : hex;
-    }).join('');
-  }
-</script>
+<script src="login.js"></script>
 </body>
 </html>

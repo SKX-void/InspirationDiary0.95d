@@ -9,99 +9,12 @@
 <body>
         <div style="display: flex;">
         <h1>页面列表</h1>
-        <button onclick="backTitleIndex()" id="back-title-btn"
+        <button id="backTitleIndexBtn" id="back-title-btn"
             style="height: auto; margin:30px;">⬅</button>
-        <button onclick="appendPage()" id="append-page-btn" style="height: auto;margin: 30px 0 30px 0;">➕</button>
+        <button id="appendPageBtn" id="append-page-btn" style="height: auto;margin: 30px 0 30px 0;">➕</button>
     </div>
 <ul id="pageList" class="page-list"></ul>
 
-<script>
-    const docName = getQueryParameter('doc_name'); // 从 URL 中获取 docName
-    const chapterId = getQueryParameter('chapter_id'); // 从 URL 中获取 chapterId
-    const lastPage = getQueryParameter('last_page'); // 从 URL 中获取 lastPage
-
-    if (!docName || !chapterId) {
-        document.getElementById('pageList').innerHTML = '<li>缺少文档 ID 或标题 ID，请检查 URL。</li>';
-    }
-    getPageList(docName, chapterId, lastPage); // 根据 docName 和 chapterId 获取页面列表
-
-    // 获取 URL 中的查询参数
-    function getQueryParameter(paramName) {
-        const queryString = window.location.search;
-        const urlParams = new URLSearchParams(queryString);
-        return urlParams.get(paramName);
-    }
-    // 错误处理函数
-    function handleError(prefix, error, message) {
-        console.error(prefix, error);
-        if (message) {
-            alert(message);
-        } else {
-            alert(error.message);
-        }
-    }
-
-    // 获取总页数并渲染页面列表
-    async function getPageList(docName, chapterId, lastPage) {
-        try {
-            const response = await fetch(`/api/page/total?doc_name=${encodeURIComponent(docName)}&chapter_id=${chapterId}`);
-            const data = await response.json();
-            if (!response.ok) {
-                handleError("服务器获取总页数失败:",new Error(`${response.status}: ${data.err}`));
-            }
-            const totalPages = data.total_pages;
-            renderPageList(totalPages, docName, chapterId, lastPage);
-        } catch (error) {
-            handleError('请求失败:', error);
-            document.getElementById('pageList').innerHTML = '<li>加载页面列表失败，请稍后重试。</li>';
-        }
-    }
-
-    // 渲染页面列表
-    function renderPageList(totalPages, docName, chapterId, lastPage) {
-        const pageListElement = document.getElementById('pageList');
-        pageListElement.innerHTML = ''; // 清空现有内容
-        const lastPageNumber = parseInt(lastPage); // 转换为数字
-        for (let i = 1; i <= totalPages; i++) {
-            const listItem = document.createElement('li');
-            listItem.className = 'page-item';
-
-            // 如果当前页码等于 lastPage，则标记为 active
-            if (i === lastPageNumber) {
-                listItem.classList.add('active');
-            }
-            listItem.textContent = i.toString();
-
-            listItem.addEventListener('click', () => {
-                window.location.href = `/editor?doc_name=${encodeURIComponent(docName)}&chapter_id=${chapterId}&page_num=${i}`;
-            });
-
-            pageListElement.appendChild(listItem);
-        }
-
-        // 自动滚动到标记的方块（如果有 lastPage）
-        if (lastPage) {
-            const activeItem = document.querySelector('.pageNum-item.active');
-            if (activeItem) {
-                activeItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-        }
-    }
-
-    function backTitleIndex() {
-        window.location.href = `/chapterIndex?doc_name=${encodeURIComponent(docName)}`;
-    }
-
-    async function appendPage() {
-        const response = await fetch(`/api/page/append?doc_name=${encodeURIComponent(docName)}&chapter_id=${chapterId}`
-            , { method: 'POST' }
-        );
-        const data = await response.json();
-        if (!response.ok) {
-            handleError("服务器追加页面失败:",new Error(`${response.status}: ${data.err}`));
-        }
-        await getPageList(docName, chapterId, lastPage);
-    }
-</script>
+<script src="pgidx.js"></script>
 </body>
 </html>
