@@ -121,7 +121,7 @@ router.get('/logout', (req: express.Request, res) => {
     });
 });
 
-router.get('/api/login', (req: express.Request, res) => {
+router.get('/login-status', (req: express.Request, res) => {
     if (req.session.user && req.session.user != "none") {
         res.json({ login: true, level: req.session.level });
     } else {

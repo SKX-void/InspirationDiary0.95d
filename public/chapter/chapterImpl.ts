@@ -1,16 +1,13 @@
-//#region Impl
-/**
- * 错误处理函数
- */
-window.addEventListener('DOMContentLoaded', async () => {
-    function handleError(info: string, error?: Error, message?: string) {
+class ChapterApi {
+    static handleError(info: string, error?: Error, message?: string) {
         let errMsg = "no err mag";
         if (error) errMsg = error.message;
         let msg = "no msg";
         if (message) msg = message;
-        alert(`handleErrorMSG:\nprefix:${info}+\nerr:${errMsg}\nmsg:${msg}`);
+        alert(`ChapterApi.handleErrorMSG:\nprefix:${info}+\nerr:${errMsg}\nmsg:${msg}`);
     }
-    async function insertChapter(docName: string, title: string) {
+
+    static async insertChapter(docName: string, title: string) {
         try {
             const response = await fetch(`/api/chapter`, {
                 method: 'POST',
@@ -19,18 +16,17 @@ window.addEventListener('DOMContentLoaded', async () => {
             });
             const data = await response.json();
             if (!response.ok) {
-                handleError('服务器插入章节失败:', new Error(`${response.status}:${data.err}`));
+                ChapterApi.handleError('服务器插入章节失败:', new Error(`${response.status}:${data.err}`));
             }
         } catch (error) {
             if (error instanceof Error) {
-                handleError('插入章节失败:', error);
+                ChapterApi.handleError('插入章节失败:', error);
             } else {
-                handleError('插入章节失败非法错误');
+                ChapterApi.handleError('插入章节失败非法错误');
             }
         }
     }
-
-    async function updateChapter(docName: string, chapterId: string | number, title: string, sortOrder: number | string) {
+    static async updateChapter(docName: string, chapterId: string | number, title: string, sortOrder: number | string) {
         try {
             const response = await fetch(`/api/chapter`, {
                 method: 'PUT',
@@ -39,18 +35,17 @@ window.addEventListener('DOMContentLoaded', async () => {
             });
             const data = await response.json();
             if (!response.ok) {
-                handleError('服务器更新章节失败:', new Error(`${response.status}:${data.err}`));
+                ChapterApi.handleError('服务器更新章节失败:', new Error(`${response.status}:${data.err}`));
             }
         } catch (error) {
             if (error instanceof Error) {
-                handleError('更新章节失败:', error);
+                ChapterApi.handleError('更新章节失败:', error);
             } else {
-                handleError('更新章节失败非法错误');
+                ChapterApi.handleError('更新章节失败非法错误');
             }
         }
     }
-
-    async function deleteChapter(docName: string, chapterId: string | number) {
+    static async deleteChapter(docName: string, chapterId: string | number) {
         try {
             const response = await fetch(`/api/chapter`, {
                 method: 'DELETE',
@@ -59,31 +54,30 @@ window.addEventListener('DOMContentLoaded', async () => {
             });
             const data = await response.json();
             if (!response.ok) {
-                handleError('服务器删除章节失败:', new Error(`${response.status}:${data.err}`));
+                ChapterApi.handleError('服务器删除章节失败:', new Error(`${response.status}:${data.err}`));
             }
         } catch (error) {
             if (error instanceof Error) {
-                handleError('删除章节失败:', error);
+                ChapterApi.handleError('删除章节失败:', error);
             } else {
-                handleError('删除章节失败非法错误');
+                ChapterApi.handleError('删除章节失败非法错误');
             }
         }
     }
-
-    async function getChapterList(docName: string) {
+    static async getChapterList(docName: string) {
         try {
             const response = await fetch(`/api/chapter?doc_name=${encodeURIComponent(docName)}`);
             const data = await response.json();
             if (!response.ok) {
-                handleError('服务器获取章节列表失败:', new Error(`${response.status}:${data.err}`));
+                ChapterApi.handleError('服务器获取章节列表失败:', new Error(`${response.status}:${data.err}`));
                 return;
             }
-            renderChapterList(data, docName);
+            ChapterApi.renderChapterList(data, docName);
         } catch (error) {
             if (error instanceof Error) {
-                handleError('获取章节列表失败:', error);
+                ChapterApi.handleError('获取章节列表失败:', error);
             } else {
-                handleError('获取章节列表失败非法错误');
+                ChapterApi.handleError('获取章节列表失败非法错误');
             }
             const chapterList = document.getElementById('chapterList');
             if (!(chapterList instanceof HTMLElement)) {
@@ -93,32 +87,8 @@ window.addEventListener('DOMContentLoaded', async () => {
             chapterList.innerHTML = '<li>加载标题列表失败，请稍后重试。</li>';
         }
     }
-    //#endregion
 
-    //#region html
-
-    const docName = getQueryParameter('doc_name');
-    if (!docName) {
-        const chapterList = document.getElementById('chapterList');
-        if (!(chapterList instanceof HTMLElement)) throw new Error('缺少文档 ID，请检查 URL。');
-        chapterList.innerHTML = '<li>缺少文档 ID，请检查 URL。</li>';
-    } else {
-        getChapterList(docName);
-    }
-
-    let currentChapterId: null | number = null;
-    let currentTitle: null | string = null;
-    let currentSortOrder: null | number = null;
-
-    // 获取 URL 中的参数
-    function getQueryParameter(paramName: string) {
-        const queryString = window.location.search;
-        const urlParams = new URLSearchParams(queryString);
-        return urlParams.get(paramName);
-    }
-
-    // 渲染章节列表
-    function renderChapterList(chapters: { title: string, chapter_id: number, last_page: number, sort_order: number }[], docName: string) {
+    private static renderChapterList(chapters: { title: string, chapter_id: number, last_page: number, sort_order: number }[], docName: string) {
         const chapterListElement = document.getElementById('chapterList');
         if (!(chapterListElement instanceof HTMLElement)) {
             console.warn('章节列表元素不存在，无法渲染。');
@@ -147,6 +117,32 @@ window.addEventListener('DOMContentLoaded', async () => {
             chapterListElement.appendChild(listItem);
         });
     }
+}
+
+window.addEventListener('DOMContentLoaded', async () => {
+
+    //#region html
+    const docName = getQueryParameter('doc_name');
+    if (!docName) {
+        const chapterList = document.getElementById('chapterList');
+        if (!(chapterList instanceof HTMLElement)) throw new Error('缺少文档 ID，请检查 URL。');
+        chapterList.innerHTML = '<li>缺少文档 ID，请检查 URL。</li>';
+    } else {
+        ChapterApi.getChapterList(docName);
+    }
+
+    let currentChapterId: null | number = null;
+    let currentTitle: null | string = null;
+    let currentSortOrder: null | number = null;
+
+    // 获取 URL 中的参数
+    function getQueryParameter(paramName: string) {
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        return urlParams.get(paramName);
+    }
+
+    // 渲染章节列表
 
     const addChapterButton = document.getElementById('addChapterButton');
     const addChapterModal = document.getElementById('addChapterModal');
@@ -173,14 +169,14 @@ window.addEventListener('DOMContentLoaded', async () => {
     // 页面加载时获取 docName 并加载章节列表
 
     // 绑定增加章节按钮事件
-    if (!(addChapterButton instanceof HTMLElement 
-        && addChapterModal instanceof HTMLElement 
-        && confirmAddChapter instanceof HTMLElement 
-        && cancelAddChapter instanceof HTMLElement 
+    if (!(addChapterButton instanceof HTMLElement
+        && addChapterModal instanceof HTMLElement
+        && confirmAddChapter instanceof HTMLElement
+        && cancelAddChapter instanceof HTMLElement
         && newChapterInput instanceof HTMLInputElement)) {
-            console.warn('章节列表元素不存在，无法绑定事件。');
-            return
-        };
+        console.warn('章节列表元素不存在，无法绑定事件。');
+        return
+    };
     addChapterButton.addEventListener('click', () => {
         addChapterModal.style.display = 'block';
     });
@@ -196,8 +192,8 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
         try {
             if (!docName) throw new Error('缺少文档 ID，请检查 URL。');
-            await insertChapter(docName, title);
-            await getChapterList(docName);
+            await ChapterApi.insertChapter(docName, title);
+            await ChapterApi.getChapterList(docName);
             addChapterModal.style.display = 'none';
             newChapterInput.value = '';
         } catch (error) {
@@ -239,14 +235,14 @@ window.addEventListener('DOMContentLoaded', async () => {
         contextMenu.style.display = 'none';
     });
 
-    if (!(editChapterOption instanceof HTMLElement 
-        && editChapterId instanceof HTMLInputElement 
-        && editSortOrder instanceof HTMLInputElement 
-        && editChapterModal instanceof HTMLElement 
+    if (!(editChapterOption instanceof HTMLElement
+        && editChapterId instanceof HTMLInputElement
+        && editSortOrder instanceof HTMLInputElement
+        && editChapterModal instanceof HTMLElement
         && contextMenu)) {
-            console.warn('编辑章节元素不存在，无法绑定事件。');
-            return
-        };
+        console.warn('编辑章节元素不存在，无法绑定事件。');
+        return
+    };
     editChapterOption.addEventListener('click', () => {
         editChapterId.value = String(currentChapterId);
         editSortOrder.value = String(currentSortOrder);
@@ -255,11 +251,11 @@ window.addEventListener('DOMContentLoaded', async () => {
         contextMenu.style.display = 'none';
     });
 
-    if (!(cancelEditChapter instanceof HTMLElement 
+    if (!(cancelEditChapter instanceof HTMLElement
         && editTitle instanceof HTMLInputElement)) {
-            console.warn('编辑章节元素不存在，无法绑定事件。');
-            return
-        };
+        console.warn('编辑章节元素不存在，无法绑定事件。');
+        return
+    };
     cancelEditChapter.addEventListener('click', () => {
         editChapterModal.style.display = 'none';
         editChapterId.value = '';
@@ -280,8 +276,8 @@ window.addEventListener('DOMContentLoaded', async () => {
 
         try {
             if (!docName || !currentChapterId) throw new Error('缺少文档或章节 ID，请检查 URL。');
-            await updateChapter(docName, currentChapterId, newTitle, newSortOrder);
-            await getChapterList(docName);
+            await ChapterApi.updateChapter(docName, currentChapterId, newTitle, newSortOrder);
+            await ChapterApi.getChapterList(docName);
             editChapterModal.style.display = 'none';
         } catch (error) {
             console.error('修改章节失败:', error);
@@ -289,11 +285,11 @@ window.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    if (!(deleteChapterOption instanceof HTMLElement 
+    if (!(deleteChapterOption instanceof HTMLElement
         && deleteChapterModal instanceof HTMLElement)) {
-            console.warn('删除章节元素不存在，无法绑定事件。');
-            return
-        };
+        console.warn('删除章节元素不存在，无法绑定事件。');
+        return
+    };
     deleteChapterOption.addEventListener('click', () => {
         const deleteChapterMessage = document.getElementById('deleteChapterMessage');
         if (!(deleteChapterMessage instanceof HTMLElement)) {
@@ -320,8 +316,8 @@ window.addEventListener('DOMContentLoaded', async () => {
     confirmDeleteChapter.addEventListener('click', async () => {
         try {
             if (!docName || !currentChapterId) throw new Error('缺少文档或章节 ID，请检查 URL。');
-            await deleteChapter(docName, currentChapterId);
-            await getChapterList(docName);
+            await ChapterApi.deleteChapter(docName, currentChapterId);
+            await ChapterApi.getChapterList(docName);
             deleteChapterModal.style.display = 'none';
         } catch (error) {
             console.error('删除章节失败:', error);

@@ -1,8 +1,84 @@
-interface Window {
-    getQueryParameter: (name: string) => string;
-    quill: Quill;
+class QuillInit {
+    static readonly Font = Quill.import('formats/font');
+    static {
+        QuillInit.Font.whitelist = [
+            'sans-serif',
+            'serif',
+            'monospace',
+            'simsun',
+            'simhei',
+            'kaiti',
+            'fangsong',
+            'yahei'
+        ];
+        Quill.register(QuillInit.Font, true);
+    }
+    static readonly fullToolbarOptions = {
+        container: [
+            [{ 'font': QuillInit.Font.whitelist }, { 'size': ['small', false, 'large', 'huge'] }],  // 字体及大小
+            ['bold', 'italic', 'underline', 'strike'],                         // 文本样式
+            [{ 'color': [] }, { 'background': [] }],                           // 颜色选择
+            [{ 'script': 'sub' }, { 'script': 'super' }],                       // 上标/下标
+            [{ 'header': [2, 3, 4, 5, 6, false] }],                            // 标题
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }],                      // 列表
+            [{ 'align': [] }],                                                 // 对齐方式
+            [{ 'indent': '-1' }, { 'indent': '+1' }],                             // 缩进
+            ['link', 'image', 'video'],                                        // 插入链接、图片、视频
+            ['clean']
+        ],
+        handlers: {}
+    };
 }
-class PageImpl {
+
+class QuillObj {
+    static readonly quill: Quill = new Quill('#editor-container', {
+        modules: {
+            toolbar: QuillInit.fullToolbarOptions
+        },
+        theme: 'snow'
+    });
+    static readonly quillTextChange = { value: false };
+    static readonly quillTextVersion = { value: 0 };
+    static {
+        QuillObj.quill.disable();
+        //#region 注册字体功能
+        const customFonts = {
+            'sans-serif': '无衬线',
+            'serif': '衬线',
+            'monospace': '等宽',
+            'simsun': '宋体',
+            'simhei': '黑体',
+            'kaiti': '楷体',
+            'fangsong': '仿宋',
+            'yahei': '微软雅黑'
+        };
+        function updateFontDisplay(element: Element) {
+            const value = element.getAttribute('data-value') as keyof typeof customFonts;
+            if (customFonts[value]) {
+                element.innerHTML = '';
+                const span = document.createElement('span');
+                span.textContent = customFonts[value];
+                element.appendChild(span);
+            }
+        }
+        document.querySelectorAll('.ql-font .ql-picker-item').forEach(updateFontDisplay);
+        const defaultOption = document.querySelector('.ql-font .ql-picker-label .ql-selected');
+        if (defaultOption) {
+            const closestPickerItem = defaultOption.closest('.ql-picker-item');
+            if (closestPickerItem) { // 检查 closest 是否返回了 Element
+                updateFontDisplay(closestPickerItem);
+            }
+        }
+        //#endregion
+    }
+}
+
+class PageApi {
+    static getQueryParameter(paramName: string) {
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        return urlParams.get(paramName) ?? "";
+    }
 
     static handleError(info: string, error?: Error, message?: string) {
         let errMsg = "no err mag";
@@ -42,18 +118,18 @@ class PageImpl {
             const response = await fetch(`/api/page?doc_name=${encodeURIComponent(docName)}&chapter_id=${chapterId}&page_num=${checkedPageNum}`);
             const data = await response.json();
             if (!response.ok) {
-                window.quill.setText("加载页面失败！" + data.err);
-                window.quill.disable();
+                QuillObj.quill.setText("加载页面失败！" + data.err);
+                QuillObj.quill.disable();
                 return;
             }
-            window.current_version = data.current_version;
+            QuillObj.quillTextVersion.value = data.current_version;
             const quillBytes = data.content;
-            if (quillBytes) window.quill.setContents(JSON.parse(quillBytes));
-            else window.quill.setText(data.plain_text);
+            if (quillBytes) QuillObj.quill.setContents(JSON.parse(quillBytes));
+            else QuillObj.quill.setText(data.plain_text);
             const last_local = data.last_local;
-            if (last_local) window.quill.setSelection(last_local, 0);
-            window.quill.enable();
-            window.quillTextChange = false;
+            if (last_local) QuillObj.quill.setSelection(last_local, 0);
+            QuillObj.quill.enable();
+            QuillObj.quillTextChange.value = false;
             const textChangeElement = document.getElementById('textChange');
             if (!(textChangeElement instanceof HTMLElement)) {
                 console.error("缺少元素 textChange");
@@ -72,9 +148,9 @@ class PageImpl {
     }
 
     static async insertPageAtEndOf() {
-        const docName = window.getQueryParameter('doc_name'); // 从 URL 中获取 docName
-        const chapterId = parseInt(window.getQueryParameter('chapter_id')); // 从 URL 中获取 chapterId
-        const currentPage = window.getQueryParameter('page_num'); // 从 URL 中获取 lastPage
+        const docName = PageApi.getQueryParameter('doc_name'); // 从 URL 中获取 docName
+        const chapterId = parseInt(PageApi.getQueryParameter('chapter_id')); // 从 URL 中获取 chapterId
+        const currentPage = PageApi.getQueryParameter('page_num'); // 从 URL 中获取 lastPage
         if (!docName || !chapterId || !currentPage) {
             console.error("缺少必要参数 doc_name, chapter_id, page_num");
             return;
@@ -97,16 +173,16 @@ class PageImpl {
             return;
         }
         const nextPage = parseInt(currentPage) + 1;
-        await this.goToPage(docName, chapterId, nextPage, window.quillTextChange);
+        await this.goToPage(docName, chapterId, nextPage, QuillObj.quillTextChange.value);
     }
 
     static async deletePageAt() {
-        const docName = window.getQueryParameter('doc_name'); // 从 URL 中获取 docName
-        const chapterId = parseInt(window.getQueryParameter('chapter_id')); // 从 URL 中获取 chapterId
-        const currentPage = parseInt(window.getQueryParameter('page_num')); // 从 URL 中获取 lastPage
+        const docName = PageApi.getQueryParameter('doc_name'); // 从 URL 中获取 docName
+        const chapterId = parseInt(PageApi.getQueryParameter('chapter_id')); // 从 URL 中获取 chapterId
+        const currentPage = parseInt(PageApi.getQueryParameter('page_num')); // 从 URL 中获取 lastPage
         if (currentPage === 1 && parseInt(document.getElementById('total-pages')?.dataset.value ?? "0") === 1) {
-            window.quill.root.innerHTML = '';
-            if (window.quill.isEnabled()) await this.updatePage();
+            QuillObj.quill.root.innerHTML = '';
+            if (QuillObj.quill.isEnabled()) await this.updatePage();
             return;
         }
         try {
@@ -141,25 +217,25 @@ class PageImpl {
     }
 
     static async goToPageOffset(offset: number) {
-        const docName = window.getQueryParameter('doc_name'); // 从 URL 中获取 docName
-        const chapterId = parseInt(window.getQueryParameter('chapter_id')); // 从 URL 中获取 chapterId
-        const page = parseInt(window.getQueryParameter('page_num')) + offset; // 从 URL 中获取 lastPage
-        await this.goToPage(docName, chapterId, page, window.quillTextChange);
+        const docName = PageApi.getQueryParameter('doc_name'); // 从 URL 中获取 docName
+        const chapterId = parseInt(PageApi.getQueryParameter('chapter_id')); // 从 URL 中获取 chapterId
+        const page = parseInt(PageApi.getQueryParameter('page_num')) + offset; // 从 URL 中获取 lastPage
+        await this.goToPage(docName, chapterId, page, QuillObj.quillTextChange.value);
     }
 
     static async updatePage() {
         SaveCartoon.onSaving()
-        const docName = window.getQueryParameter('doc_name'); // 从 URL 中获取 docName
-        const chapterId = window.getQueryParameter('chapter_id'); // 从 URL 中获取 chapterId
-        const pageNum = window.getQueryParameter('page_num'); // 从 URL 中获取 lastPage
+        const docName = PageApi.getQueryParameter('doc_name'); // 从 URL 中获取 docName
+        const chapterId = PageApi.getQueryParameter('chapter_id'); // 从 URL 中获取 chapterId
+        const pageNum = PageApi.getQueryParameter('page_num'); // 从 URL 中获取 lastPage
         if (!docName || !chapterId || !pageNum) {
             console.error("缺少必要参数 doc_name, chapter_id, page_num");
             return false;
         }
         try {
-            const quillText = window.quill.getContents();
-            const text = window.quill.getText();
-            const selection = window.quill.getSelection();
+            const quillText = QuillObj.quill.getContents();
+            const text = QuillObj.quill.getText();
+            const selection = QuillObj.quill.getSelection();
             const last_local = selection ? selection.index : 0;
             const response = await fetch(`/api/page`, {
                 method: 'PUT',
@@ -173,7 +249,7 @@ class PageImpl {
                     content: JSON.stringify(quillText),
                     plain_text: text,
                     last_local: last_local,
-                    current_version: window.current_version
+                    current_version: QuillObj.quillTextVersion
                 })
             });
             const data = await response.json();
@@ -183,7 +259,7 @@ class PageImpl {
                 SaveCartoon.onSaveFailed();
                 return false;
             }
-            window.quillTextChange = false;
+            QuillObj.quillTextChange.value = false;
             const textChangeElement = document.getElementById('textChange');
             if (!(textChangeElement instanceof HTMLElement)) {
                 console.error("缺少元素 textChange");
@@ -194,7 +270,7 @@ class PageImpl {
             const newVersion = await fetch(`/api/page/version?doc_name=${encodeURIComponent(docName)}&chapter_id=${encodeURIComponent(chapterId)}&page_num=${encodeURIComponent(pageNum)}}`);
             if (newVersion.ok) {
                 const json = await newVersion.json();
-                window.current_version = json.current_version;
+                QuillObj.quillTextVersion.value = json.current_version;
             } else {
                 console.error(newVersion);
                 const json = await newVersion.json();
@@ -214,7 +290,7 @@ class PageImpl {
     }
 
     static async goToPage(docName: string, chapterId: number, page_num: number, update = true) {
-        if (update && window.quill.isEnabled()) {
+        if (update && QuillObj.quill.isEnabled()) {
             const updateResult = await this.updatePage();
             if (!updateResult) {
                 return;
@@ -348,7 +424,7 @@ class PageImpl {
         const data = await response.json();
         if (!response.ok) {
             console.error(response);
-            PageImpl.handleError("服务端插入页面操作失败：", new Error(`${response.status}:${data.err}`), data.message);
+            PageApi.handleError("服务端插入页面操作失败：", new Error(`${response.status}:${data.err}`), data.message);
             return false;
         }
         return true;
@@ -396,8 +472,8 @@ class PageImpl {
         const maxPageNumber = parseInt(cutInput.value); // 每页最大字符数
         const cutStringList = ["\n", ".", "。", "!", "！", "?", "？"]; // 分割字符串列表
         // 获取Quill编辑器的纯文本内容和Delta内容
-        let totalText = window.quill.getText();
-        let totalDelta = window.quill.getContents();
+        let totalText = QuillObj.quill.getText();
+        let totalDelta = QuillObj.quill.getContents();
         // 分页逻辑
         let contentList = [];
         const virtualContainer = document.createElement('div');
@@ -412,38 +488,202 @@ class PageImpl {
         }
         while (totalText.length > maxPageNumber) {
 
-            let cutIndex = PageImpl.getTextCutIndex(totalText, maxPageNumber, cutStringList);
-            let leftDelta = PageImpl.getDeltaContentUpToIndex(totalDelta, cutIndex);
-            let rightDelta = PageImpl.getRemainingDelta(totalDelta, cutIndex);
+            let cutIndex = PageApi.getTextCutIndex(totalText, maxPageNumber, cutStringList);
+            let leftDelta = PageApi.getDeltaContentUpToIndex(totalDelta, cutIndex);
+            let rightDelta = PageApi.getRemainingDelta(totalDelta, cutIndex);
             contentList.push(leftDelta);
             tempQuill.setContents(rightDelta);
             totalText = tempQuill.getText();
             totalDelta = tempQuill.getContents();
         }
         contentList.push(totalDelta);
-        const docName = window.getQueryParameter('doc_name'); // 从 URL 中获取 docName
-        const chapterId = parseInt(window.getQueryParameter('chapter_id')); // 从 URL 中获取 chapterId
-        const currentPage = parseInt(window.getQueryParameter('page_num')); // 从 URL 中获取 lastPage
+        const docName = PageApi.getQueryParameter('doc_name'); // 从 URL 中获取 docName
+        const chapterId = parseInt(PageApi.getQueryParameter('chapter_id')); // 从 URL 中获取 chapterId
+        const currentPage = parseInt(PageApi.getQueryParameter('page_num')); // 从 URL 中获取 lastPage
         let insertPage = currentPage;
         for (const item of contentList) {
             tempQuill.setContents(item);
-            const result = await PageImpl.insertFullPageAtEndOf(docName, chapterId, insertPage, item, tempQuill.getText(), 0);
+            const result = await PageApi.insertFullPageAtEndOf(docName, chapterId, insertPage, item, tempQuill.getText(), 0);
             if (!result) {
                 console.error("插入页面失败");
                 break;
             }
             insertPage++;
-            PageImpl.showSaveCount(insertPage);
+            PageApi.showSaveCount(insertPage);
         }
-        await PageImpl.getTotalPages(docName, chapterId);
-        await PageImpl.deletePageAt();
+        await PageApi.getTotalPages(docName, chapterId);
+        await PageApi.deletePageAt();
         await this.goToPage(docName, chapterId, insertPage - 1);
     }
 }
 
-window.getQueryParameter = function getQueryParameter(paramName: string) {
-    const queryString = window.location.search;
-    const urlParams = new URLSearchParams(queryString);
-    return urlParams.get(paramName) ?? "";
-}
 
+class SaveCartoon {
+    private static overlay: HTMLElement | null = null;
+    private static box: HTMLElement | null = null;
+    static readonly svgIconString = `
+<svg width="100" height="100" viewBox="0 0 100 100">
+    <defs>
+        <linearGradient id="grad">
+            <stop offset="0%" stop-color="#4a90e2">
+                <animate attributeName="stop-color" values="#4a90e2;#8ed1fc;#4a90e2" dur="1.5s" repeatCount="indefinite"/>
+            </stop>
+            <stop offset="100%" stop-color="#8ed1fc">
+                <animate attributeName="stop-color" values="#8ed1fc;#4a90e2;#8ed1fc" dur="1.5s" repeatCount="indefinite"/>
+            </stop>
+        </linearGradient>
+    </defs>
+
+    <g transform="translate(50,50)">
+        <rect transform="rotate(0)"   x="-3" y="-35" width="6" height="20" fill="url(#grad)" opacity="0.3">
+            <animate attributeName="opacity" values="0.3;1;0.3" dur="1.2s" repeatCount="indefinite" begin="0s"/>
+        </rect>
+        <rect transform="rotate(45)"  x="-3" y="-35" width="6" height="20" fill="url(#grad)" opacity="0.3">
+            <animate attributeName="opacity" values="0.3;1;0.3" dur="1.2s" repeatCount="indefinite" begin="0.15s"/>
+        </rect>
+        <rect transform="rotate(90)"  x="-3" y="-35" width="6" height="20" fill="url(#grad)" opacity="0.3">
+            <animate attributeName="opacity" values="0.3;1;0.3" dur="1.2s" repeatCount="indefinite" begin="0.3s"/>
+        </rect>
+        <rect transform="rotate(135)" x="-3" y="-35" width="6" height="20" fill="url(#grad)" opacity="0.3">
+            <animate attributeName="opacity" values="0.3;1;0.3" dur="1.2s" repeatCount="indefinite" begin="0.45s"/>
+        </rect>
+        <rect transform="rotate(180)" x="-3" y="-35" width="6" height="20" fill="url(#grad)" opacity="0.3">
+            <animate attributeName="opacity" values="0.3;1;0.3" dur="1.2s" repeatCount="indefinite" begin="0.6s"/>
+        </rect>
+        <rect transform="rotate(225)" x="-3" y="-35" width="6" height="20" fill="url(#grad)" opacity="0.3">
+            <animate attributeName="opacity" values="0.3;1;0.3" dur="1.2s" repeatCount="indefinite" begin="0.75s"/>
+        </rect>
+        <rect transform="rotate(270)" x="-3" y="-35" width="6" height="20" fill="url(#grad)" opacity="0.3">
+            <animate attributeName="opacity" values="0.3;1;0.3" dur="1.2s" repeatCount="indefinite" begin="0.9s"/>
+        </rect>
+        <rect transform="rotate(315)" x="-3" y="-35" width="6" height="20" fill="url(#grad)" opacity="0.3">
+            <animate attributeName="opacity" values="0.3;1;0.3" dur="1.2s" repeatCount="indefinite" begin="1.05s"/>
+        </rect>
+    </g>
+</svg>
+`
+    private static saveResult = false;
+
+    static onSaving() {
+        this.saveResult = true;
+        this._clear(); // 清除旧内容
+
+
+        this._mask();
+
+        // 添加文字
+        const text = document.createElement('div');
+        text.textContent = '保存中...';
+        if (!(this.overlay && this.box)) return;
+        this.box.appendChild(text);
+        this.overlay.appendChild(this.box);
+        document.body.appendChild(this.overlay);
+    }
+
+    static onSaveSuccess() {
+
+        if (!this.overlay || !this.box) return;
+        // 设置成功样式
+        Object.assign(this.box.style, {
+            backgroundColor: '#e6f7ee',
+            borderColor: '#b2eec7',
+            borderWidth: '1px',
+            borderStyle: 'solid'
+        });
+
+        // 替换内容为成功图标
+        this.box.innerHTML = `
+      <svg viewBox="0 0 100 100" style="width:40px;height:40px;margin:0 auto 15px;">
+        <circle cx="50" cy="50" r="45" fill="#4caf50"></circle>
+        <path d="M30 50l15 15 20-20" stroke="white" stroke-width="5" fill="none"/>
+      </svg>
+      <div>保存成功</div>
+    `;
+
+        setTimeout(() => {
+            this.saveResult = false;
+            this._clear()
+        }, 1500);
+    }
+
+    static onSaveFailed() {
+        this.saveResult = false;
+        if (!this.overlay || !this.box) return;
+
+        // 设置失败样式
+        Object.assign(this.box.style, {
+            backgroundColor: '#fff0f0',
+            borderColor: '#fcd0d0',
+            borderWidth: '1px',
+            borderStyle: 'solid'
+        });
+
+        // 替换内容为失败图标
+        this.box.innerHTML = `
+      <div style="margin 20 auto">❌</div>
+      <div>保存失败</div>
+    `;
+        //<svg viewBox="0 0 100 100" style="width:40px;height:40px;margin:0 auto 15px;">
+        //        <circle cx="50" cy="50" r="45" fill="#ff4d4f"></circle>
+        //        <path d="M30 50l20 20 20-20" stroke="white" stroke-width="5" fill="none"/>
+        //      </svg>
+        setTimeout(() => {
+            this.saveResult = false;
+            this._clear()
+        }, 1500);
+    }
+
+    static _clear() {
+        if (this.overlay?.parentNode) {
+            this.overlay.remove();
+        }
+        this.overlay = null;
+        this.box = null;
+    }
+
+    static onLoading() {
+        if (!this.saveResult) this._clear();
+        this._mask();
+        if (!this.overlay || !this.box) return;
+        this.overlay.appendChild(this.box);
+        document.body.appendChild(this.overlay);
+    }
+
+    static onLoaded() {
+        if (!this.overlay || !this.box || this.saveResult) return;
+        this._clear();
+    }
+
+    static _mask() {
+        // 创建遮罩层
+        this.overlay = document.createElement('div');
+        Object.assign(this.overlay.style, {
+            position: 'fixed',
+            top: '0',
+            left: '0',
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: '100'
+        });
+        // 创建内容框
+        this.box = document.createElement('div');
+        Object.assign(this.box.style, {
+            backgroundColor: 'white',
+            padding: '30px',
+            borderRadius: '8px',
+            textAlign: 'center',
+            fontFamily: 'sans-serif',
+            fontSize: '16px',
+            minWidth: '200px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
+        });
+        // 添加加载动画
+        const spinner = document.createElement('div');
+        spinner.innerHTML = this.svgIconString;
+        this.box.appendChild(spinner);
+    }
+}
