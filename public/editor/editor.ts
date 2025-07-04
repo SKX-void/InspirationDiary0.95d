@@ -37,6 +37,22 @@ class EditorDomBinder {
             textCountElement.textContent = '🖊️：' + textCount + " 字符";
         });
 
+        const quillUndoBtn = document.getElementById('quill-undo-btn');
+        if (!(quillUndoBtn instanceof HTMLElement)) {
+            console.error('缺少元素 quillUndoBtn');
+            return;
+        };
+        quillUndoBtn.addEventListener('click', function () {
+            QuillObj.quill.history.undo();
+        });
+        const quillRedoBtn = document.getElementById('quill-redo-btn');
+        if (!(quillRedoBtn instanceof HTMLElement)) {
+            console.error('缺少元素 quillRedoBtn');
+            return;
+        }
+        quillRedoBtn.addEventListener('click', function () {
+            QuillObj.quill.history.redo();
+        });
     }
 
     static jumpToPageInit() {
@@ -489,4 +505,8 @@ window.addEventListener('DOMContentLoaded', async function () {
     await EditorDomBinder.loadQuillContent();
 
     EditorFRDomBinder.init();
+
+    const toolbox = Toolbox.createDefaultToolbox();
+    // const body = document.querySelector('body');
+    // body?.appendChild(toolbox);
 });

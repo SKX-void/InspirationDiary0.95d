@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>悬浮工具箱类终极改进版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2980, #26d0ce);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+            margin: 40px 0;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #34495e;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 40px 0;
+        }
+        
+        .feature-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            border-left: 4px solid #4a6cf7;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .feature-card h3 {
+            color: #4a6cf7;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .feature-card h3::before {
+            content: "✓";
+            background: #4a6cf7;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+        
+        .feature-card p {
+            color: #555;
+            padding-left: 40px;
+            line-height: 1.6;
+        }
+        
+        .control-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+            padding: 25px;
+            background: #f8f9ff;
+            border-radius: 15px;
+        }
+        
+        .control-group {
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+        
+        .control-group h3 {
+            color: #4a6cf7;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .control-group h3::before {
+            content: "⚙️";
+        }
+        
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .btn {
+            background: linear-gradient(to right, #4a6cf7, #3a5ae0);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            box-shadow: 0 4px 10px rgba(74, 108, 247, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(74, 108, 247, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .btn i {
+            font-size: 18px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .checkbox-item input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+        
+        .instructions {
+            margin-top: 40px;
+            padding: 30px;
+            background: linear-gradient(to right, #f0f5ff, #e6eeff);
+            border-radius: 15px;
+            border-left: 4px solid #4a6cf7;
+        }
+        
+        .instructions h2 {
+            color: #4a6cf7;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .instructions h2::before {
+            content: "📘";
+        }
+        
+        .instructions ol {
+            padding-left: 30px;
+        }
+        
+        .instructions li {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            padding-left: 10px;
+            line-height: 1.6;
+            position: relative;
+        }
+        
+        .instructions li::before {
+            content: "→";
+            position: absolute;
+            left: -25px;
+            color: #4a6cf7;
+            font-weight: bold;
+        }
+        
+        .code-block {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 25px 0;
+            font-family: 'Fira Code', monospace;
+            overflow-x: auto;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.5);
+            border: 1px solid #444;
+        }
+        
+        .toolbox-preview {
+            position: fixed;
+            right: 30px;
+            bottom: 30px;
+            z-index: 1000;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+            padding: 20px;
+            width: 100%;
+        }
+        
+        /* 工具箱滚动条样式 */
+        .toolbox-scrollbar::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+        
+        .toolbox-scrollbar::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        .toolbox-scrollbar::-webkit-scrollbar-thumb {
+            background: #4a6cf7;
+            border-radius: 4px;
+        }
+        
+        .toolbox-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #3a5ae0;
+        }
+        
+        @media (max-width: 768px) {
+            .features {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>悬浮工具箱类终极改进版</h1>
+            <p class="subtitle">优化滚动条、解决最小化样式问题、消除拖拽延迟感</p>
+        </header>
+        
+        <div class="features">
+            <div class="feature-card">
+                <h3>滚动条优化</h3>
+                <p>每个标签页内容区域独立滚动条，确保滚动只在当前标签内生效</p>
+            </div>
+            <div class="feature-card">
+                <h3>最小化样式改进</h3>
+                <p>完全解决混色问题，最小化时显示纯色方块，视觉更统一</p>
+            </div>
+            <div class="feature-card">
+                <h3>拖拽性能优化</h3>
+                <p>使用transform实现平滑拖拽，消除延迟感，操作更流畅</p>
+            </div>
+        </div>
+        
+        <div class="control-panel">
+            <div class="control-group">
+                <h3>工具箱控制</h3>
+                <div class="btn-group">
+                    <button class="btn" id="createBtn">
+                        <i>➕</i> 创建工具箱
+                    </button>
+                    <button class="btn" id="addTabBtn">
+                        <i>📑</i> 添加标签页
+                    </button>
+                    <button class="btn" id="addBtn">
+                        <i>🔧</i> 添加工具
+                    </button>
+                    <button class="btn" id="removeBtn">
+                        <i>🗑️</i> 移除工具箱
+                    </button>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <h3>尺寸控制</h3>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="widthFixed" checked>
+                        <label for="widthFixed">固定宽度 (300px)</label>
+                    </div>
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="heightFixed">
+                        <label for="heightFixed">固定高度 (300px)</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <h3>收起样式</h3>
+                <div class="checkbox-group">
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="hideTitle" checked>
+                        <label for="hideTitle">方块式收起模式</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h2>改进功能说明</h2>
+            <ol>
+                <li><strong>滚动条优化</strong>：
+                    每个标签页的内容容器都有独立的滚动条，确保滚动操作只影响当前标签页内容</li>
+                    
+                <li><strong>最小化样式改进</strong>：
+                    完全解决最小化时的混色问题，现在最小化时显示纯蓝色方块，视觉统一美观</li>
+                    
+                <li><strong>拖拽性能优化</strong>：
+                    使用transform进行位移操作，利用GPU加速消除拖拽延迟感，操作更加流畅自然</li>
+                    
+                <li><strong>动画效果增强</strong>：
+                    添加了平滑的过渡动画，提升用户体验，所有操作更加自然流畅</li>
+            </ol>
+            
+            <div class="code-block">
+                <pre><code>class Toolbox {
+    // 静态配置变量
+    static fixedWidth = { enabled: true, value: 300 };
+    static fixedHeight = { enabled: false, value: 300 };
+    static hideTitleWhenCollapsed = true;
+    
+    constructor(id = 'floatingToolBox', title = '悬浮工具箱') {
+        this.id = id;
+        this.tabs = {};
+        this.currentTab = null;
+        this.isMinimized = false;
+        this.originalDimensions = {};
+        this.dragPosition = { x: 0, y: 0 };
+        
+        // 创建容器
+        this.container = document.createElement('div');
+        this.container.id = this.id;
+        
+        // 初始化样式
+        this.initStyles(title);
+        
+        // 添加到指定容器
+        const container = document.getElementById('toolboxContainer');
+        if (container) {
+            container.appendChild(this.container);
+        } else {
+            document.body.appendChild(this.container);
+        }
+        
+        // 初始化事件
+        this.initEvents();
+    }
+    
+    initStyles(title) {
+        // 应用基本样式
+        this.applyStyle(this.container, {
+            position: 'fixed',
+            background: 'white',
+            borderRadius: '10px',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+            overflow: 'hidden',
+            zIndex: '10000',
+            right: '30px',
+            top: '30px',
+            fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
+            transition: 'all 0.3s ease'
+        });
+        
+        // 应用尺寸设置
+        this.updateDimensions();
+        
+        // 创建头部
+        this.header = document.createElement('div');
+        this.applyStyle(this.header, {
+            background: 'linear-gradient(135deg, #4a6cf7, #3a5ae0)',
+            color: 'white',
+            padding: '12px 15px',
+            cursor: 'move',
+            userSelect: 'none',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+        });
+        
+        this.title = document.createElement('div');
+        this.title.textContent = title;
+        this.applyStyle(this.title, {
+            fontWeight: '600',
+            fontSize: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px'
+        });
+        
+        this.toggleBtn = document.createElement('button');
+        this.toggleBtn.textContent = '▼';
+        this.applyStyle(this.toggleBtn, {
+            background: 'rgba(255,255,255,0.2)',
+            border: 'none',
+            color: 'white',
+            cursor: 'pointer',
+            fontSize: '16px',
+            width: '30px',
+            height: '30px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            borderRadius: '6px',
+            transition: 'all 0.2s ease',
+            zIndex: '10'
+        });
+        
+        this.toggleBtn.addEventListener('mouseenter', () => {
+            this.toggleBtn.style.background = 'rgba(255,255,255,0.3)';
+        });
+        
+        this.toggleBtn.addEventListener('mouseleave', () => {
+            this.toggleBtn.style.background = 'rgba(255,255,255,0.2)';
+        });
+        
+        this.header.appendChild(this.title);
+        this.header.appendChild(this.toggleBtn);
+        
+        // 创建内容区域
+        this.content = document.createElement('div');
+        this.applyStyle(this.content, {
+            display: 'block',
+            overflow: 'hidden'
+        });
+        
+        // 标签栏容器 - 添加横向滚动支持
+        this.tabsContainer = document.createElement('div');
+        this.applyStyle(this.tabsContainer, {
+            display: 'flex',
+            background: '#f5f7ff',
+            borderBottom: '1px solid #e6e9ff',
+            overflowX: 'auto',
+            whiteSpace: 'nowrap',
+            scrollbarWidth: 'thin',
+            scrollbarColor: '#4a6cf7 #f5f7ff'
+        });
+        this.tabsContainer.classList.add('toolbox-scrollbar');
+        
+        // 标签内容容器
+        this.tabContentContainer = document.createElement('div');
+        this.applyStyle(this.tabContentContainer, {
+            overflow: 'hidden'
+        });
+        
+        // 组装
+        this.content.appendChild(this.tabsContainer);
+        this.content.appendChild(this.tabContentContainer);
+        this.container.appendChild(this.header);
+        this.container.appendChild(this.content);
+    }
+    
+    // 更新尺寸设置
+    updateDimensions() {
+        // 宽度设置
+        if (Toolbox.fixedWidth.enabled) {
+            this.container.style.width = `${Toolbox.fixedWidth.value}px`;
+            this.container.style.minWidth = 'unset';
+            this.container.style.maxWidth = 'unset';
+        } else {
+            this.container.style.width = 'auto';
+            this.container.style.minWidth = '250px';
+            this.container.style.maxWidth = '90vw';
+        }
+        
+        // 高度设置
+        if (Toolbox.fixedHeight.enabled) {
+            this.container.style.height = `${Toolbox.fixedHeight.value}px`;
+        } else {
+            this.container.style.height = 'auto';
+        }
+    }
+    
+    applyStyle(element, styles) {
+        for (const [prop, value] of Object.entries(styles)) {
+            element.style[prop] = value;
+        }
+    }
+    
+    initEvents() {
+        let isDragging = false;
+        let offsetX, offsetY;
+        
+        // 使用transform实现平滑拖拽
+        this.header.addEventListener('mousedown', (e) => {
+            // 如果处于最小方块状态，则不允许拖动
+            if (this.isMinimized) return;
+            
+            isDragging = true;
+            
+            const rect = this.container.getBoundingClientRect();
+            offsetX = e.clientX - rect.left;
+            offsetY = e.clientY - rect.top;
+            
+            // 记录初始位置
+            this.dragPosition = {
+                x: parseFloat(this.container.style.left || this.container.offsetLeft) || 0,
+                y: parseFloat(this.container.style.top || this.container.offsetTop) || 0
+            };
+            
+            // 清除可能影响transform的样式
+            this.container.style.left = '';
+            this.container.style.top = '';
+            this.container.style.right = '';
+            this.container.style.bottom = '';
+            
+            // 添加过渡效果
+            this.container.style.transition = 'none';
+            
+            e.preventDefault();
+        });
+        
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            
+            const x = e.clientX - offsetX;
+            const y = e.clientY - offsetY;
+            
+            // 使用transform实现平滑移动
+            this.container.style.transform = `translate(${x}px, ${y}px)`;
+        });
+        
+        document.addEventListener('mouseup', () => {
+            if (!isDragging) return;
+            
+            isDragging = false;
+            
+            // 保存最终位置
+            const rect = this.container.getBoundingClientRect();
+            this.dragPosition = {
+                x: rect.left,
+                y: rect.top
+            };
+            
+            // 移除transform，改用top/left定位
+            this.container.style.transform = 'none';
+            this.container.style.left = `${this.dragPosition.x}px`;
+            this.container.style.top = `${this.dragPosition.y}px`;
+            this.container.style.right = 'auto';
+            this.container.style.bottom = 'auto';
+            
+            // 恢复过渡效果
+            this.container.style.transition = 'all 0.3s ease';
+        });
+        
+        // 展开/收起功能
+        this.toggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.toggleCollapse();
+        });
+        
+        // 在最小方块状态下，点击整个方块也可以展开
+        this.container.addEventListener('click', () => {
+            if (this.isMinimized) {
+                this.toggleCollapse();
+            }
+        });
+    }
+    
+    // 折叠/展开功能
+    toggleCollapse() {
+        if (this.isMinimized) {
+            this.expandFromMinimized();
+            return;
+        }
+        
+        if (Toolbox.hideTitleWhenCollapsed) {
+            this.minimizeToSquare();
+        } else {
+            this.standardToggle();
+        }
+    }
+    
+    // 标准折叠/展开
+    standardToggle() {
+        const isCollapsed = this.container.classList.toggle('collapsed');
+        this.toggleBtn.textContent = isCollapsed ? '▲' : '▼';
+        
+        if (isCollapsed) {
+            this.container.style.height = `${this.header.offsetHeight}px`;
+        } else {
+            this.updateDimensions();
+        }
+    }
+    
+    // 最小化为方块 - 解决混色问题
+    minimizeToSquare() {
+        // 保存原始尺寸
+        this.originalDimensions = {
+            width: this.container.style.width,
+            height: this.container.style.height,
+            top: this.container.style.top,
+            left: this.container.style.left,
+            right: this.container.style.right,
+            borderRadius: this.container.style.borderRadius,
+            background: this.container.style.background
+        };
+        
+        // 设置方块样式 - 纯蓝色背景
+        this.applyStyle(this.container, {
+            width: '36px',
+            height: '36px',
+            borderRadius: '8px',
+            overflow: 'hidden',
+            background: '#4a6cf7',
+            boxShadow: '0 4px 12px rgba(74, 108, 247, 0.5)'
+        });
+        
+        // 隐藏内容
+        this.content.style.display = 'none';
+        this.title.style.display = 'none';
+        this.header.style.background = 'transparent';
+        
+        // 调整按钮位置和样式
+        this.applyStyle(this.toggleBtn, {
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: '32px',
+            height: '32px',
+            background: 'rgba(255,255,255,0.3)',
+            fontSize: '20px'
+        });
+        
+        this.toggleBtn.textContent = '▲';
+        this.isMinimized = true;
+    }
+    
+    // 从方块状态展开
+    expandFromMinimized() {
+        // 恢复原始样式
+        this.applyStyle(this.container, {
+            width: this.originalDimensions.width,
+            height: this.originalDimensions.height,
+            borderRadius: this.originalDimensions.borderRadius || '10px',
+            overflow: 'hidden',
+            background: this.originalDimensions.background || 'white',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
+        });
+        
+        // 显示内容
+        this.content.style.display = 'block';
+        this.title.style.display = 'flex';
+        this.header.style.background = 'linear-gradient(135deg, #4a6cf7, #3a5ae0)';
+        
+        // 恢复按钮样式
+        this.applyStyle(this.toggleBtn, {
+            position: 'static',
+            top: 'auto',
+            left: 'auto',
+            transform: 'none',
+            width: '30px',
+            height: '30px',
+            background: 'rgba(255,255,255,0.2)',
+            fontSize: '16px'
+        });
+        
+        this.toggleBtn.textContent = '▼';
+        this.isMinimized = false;
+    }
+    
+    addTab(tabId, tabName) {
+        if (this.tabs[tabId]) return;
+        
+        // 创建标签
+        const tab = document.createElement('div');
+        tab.textContent = tabName;
+        tab.dataset.tab = tabId;
+        this.applyStyle(tab, {
+            padding: '12px 15px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            color: '#555',
+            flexShrink: '0',
+            textAlign: 'center',
+            transition: 'all 0.2s'
+        });
+        
+        // 创建标签内容
+        const tabContent = document.createElement('div');
+        tabContent.id = `content-${tabId}`;
+        this.applyStyle(tabContent, {
+            padding: '15px',
+            display: 'none',
+            height: '100%',
+            overflowY: 'auto',
+            maxHeight: '400px'
+        });
+        tabContent.classList.add('toolbox-scrollbar');
+        
+        // 网格容器
+        const grid = document.createElement('div');
+        this.applyStyle(grid, {
+            display: 'grid',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+            gap: '15px'
+        });
+        tabContent.appendChild(grid);
+        
+        // 添加到DOM
+        this.tabsContainer.appendChild(tab);
+        this.tabContentContainer.appendChild(tabContent);
+        
+        // 存储引用
+        this.tabs[tabId] = {
+            element: tab,
+            content: tabContent,
+            grid: grid
+        };
+        
+        // 如果是第一个标签，设为激活状态
+        if (!this.currentTab) {
+            this.setActiveTab(tabId);
+        }
+        
+        // 标签点击事件
+        tab.addEventListener('click', () => {
+            this.setActiveTab(tabId);
+        });
+        
+        return tabId;
+    }
+    
+    setActiveTab(tabId) {
+        if (!this.tabs[tabId]) return;
+        
+        // 移除所有标签的激活状态
+        Object.values(this.tabs).forEach(tab => {
+            tab.element.style.color = '#555';
+            tab.element.style.background = '#f5f7ff';
+            tab.element.style.borderBottom = 'none';
+            tab.content.style.display = 'none';
+        });
+        
+        // 设置当前标签为激活状态
+        const tab = this.tabs[tabId];
+        tab.element.style.color = '#4a6cf7';
+        tab.element.style.background = 'white';
+        tab.element.style.borderBottom = '2px solid #4a6cf7';
+        tab.content.style.display = 'block';
+        
+        this.currentTab = tabId;
+    }
+    
+    addButton(tabId, config, handler) {
+        if (!this.tabs[tabId]) return;
+        
+        const tab = this.tabs[tabId];
+        const btn = document.createElement('div');
+        
+        // 应用按钮样式
+        this.applyStyle(btn, {
+            padding: '15px 10px',
+            textAlign: 'center',
+            cursor: 'pointer',
+            borderRadius: '8px',
+            background: 'linear-gradient(145deg, #ffffff, #f9faff)',
+            transition: 'all 0.3s',
+            boxShadow: '0 3px 8px rgba(0,0,0,0.05)'
+        });
+        
+        // 创建图标
+        if (config.icon) {
+            const icon = document.createElement('div');
+            icon.textContent = config.icon;
+            this.applyStyle(icon, {
+                fontSize: '28px',
+                marginBottom: '10px',
+                transition: 'transform 0.3s'
+            });
+            btn.appendChild(icon);
+        }
+        
+        // 创建文本
+        if (config.text) {
+            const text = document.createElement('div');
+            text.textContent = config.text;
+            this.applyStyle(text, {
+                fontSize: '13px',
+                color: '#444',
+                fontWeight: '500'
+            });
+            btn.appendChild(text);
+        }
+        
+        // 添加悬停效果
+        btn.addEventListener('mouseenter', () => {
+            btn.style.background = 'linear-gradient(145deg, #eef2ff, #e6eeff)';
+            btn.style.transform = 'translateY(-3px)';
+            btn.style.boxShadow = '0 5px 15px rgba(74, 108, 247, 0.2)';
+            if (config.icon) {
+                btn.querySelector('div').style.transform = 'scale(1.1)';
+            }
+        });
+        
+        btn.addEventListener('mouseleave', () => {
+            btn.style.background = 'linear-gradient(145deg, #ffffff, #f9faff)';
+            btn.style.transform = 'none';
+            btn.style.boxShadow = '0 3px 8px rgba(0,0,0,0.05)';
+            if (config.icon) {
+                btn.querySelector('div').style.transform = 'scale(1)';
+            }
+        });
+        
+        // 添加点击事件
+        btn.addEventListener('click', handler);
+        
+        // 添加到网格
+        tab.grid.appendChild(btn);
+        
+        return btn;
+    }
+    
+    remove() {
+        if (this.container && this.container.parentNode) {
+            this.container.parentNode.removeChild(this.container);
+        }
+    }
+    
+    static createDefaultToolbox() {
+        const toolbox = new Toolbox();
+        
+        // 添加默认标签页
+        toolbox.addTab('tools', '工具');
+        toolbox.addTab('settings', '设置');
+        toolbox.addTab('help', '帮助');
+        
+        // 添加工具
+        toolbox.addButton('tools', {icon: '📋', text: '剪贴板'}, () => alert('剪贴板工具'));
+        toolbox.addButton('tools', {icon: '🖼️', text: '图片'}, () => alert('图片工具'));
+        toolbox.addButton('tools', {icon: '📊', text: '数据'}, () => alert('数据分析'));
+        toolbox.addButton('tools', {icon: '📝', text: '笔记'}, () => alert('笔记功能'));
+        toolbox.addButton('tools', {icon: '⏱️', text: '计时'}, () => alert('计时器'));
+        toolbox.addButton('tools', {icon: '🌐', text: '网络'}, () => alert('网络工具'));
+        
+        // 添加设置
+        toolbox.addButton('settings', {icon: '🎨', text: '主题'}, () => alert('主题设置'));
+        toolbox.addButton('settings', {icon: '🔔', text: '通知'}, () => alert('通知设置'));
+        toolbox.addButton('settings', {icon: '🔒', text: '隐私'}, () => alert('隐私设置'));
+        
+        // 添加帮助
+        toolbox.addButton('help', {icon: '❓', text: '帮助'}, () => alert('帮助中心'));
+        toolbox.addButton('help', {icon: '📚', text: '文档'}, () => alert('查看文档'));
+        toolbox.addButton('help', {icon: '💬', text: '支持'}, () => alert('联系支持'));
+        
+        return toolbox;
+    }
+}
+
+// 当前工具箱实例
+let currentToolbox = null;
+
+// 初始化UI事件
+document.getElementById('createBtn').addEventListener('click', function() {
+    if (currentToolbox) currentToolbox.remove();
+    
+    // 更新静态配置
+    Toolbox.fixedWidth.enabled = document.getElementById('widthFixed').checked;
+    Toolbox.fixedHeight.enabled = document.getElementById('heightFixed').checked;
+    Toolbox.hideTitleWhenCollapsed = document.getElementById('hideTitle').checked;
+    
+    currentToolbox = Toolbox.createDefaultToolbox();
+    this.innerHTML = '<i>✅</i> 已创建';
+    setTimeout(() => this.innerHTML = '<i>➕</i> 创建工具箱', 2000);
+});</code></pre>
+            </div>
+        </div>
+    </div>
+    
+    <div class="toolbox-preview" id="toolboxContainer"></div>
+    
+    <footer>
+        <p>悬浮工具箱类终极改进版 &copy; 2023 | 优化滚动条、解决最小化样式问题、消除拖拽延迟感</p>
+    </footer>
+<script src="toobox.js"></script>
+    <script>
+
+        // 当前工具箱实例
+        let currentToolbox = null;
+        
+        // 初始化UI事件
+        document.getElementById('createBtn').addEventListener('click', function() {
+            if (currentToolbox) currentToolbox.remove();
+            
+            // 更新静态配置
+            ToolboxDemo.fixedWidth.enabled = document.getElementById('widthFixed').checked;
+            ToolboxDemo.fixedHeight.enabled = document.getElementById('heightFixed').checked;
+            ToolboxDemo.hideTitleWhenCollapsed = document.getElementById('hideTitle').checked;
+            
+            currentToolbox = ToolboxDemo.createDefaultToolbox();
+            this.innerHTML = '<i>✅</i> 已创建';
+            setTimeout(() => this.innerHTML = '<i>➕</i> 创建工具箱', 2000);
+        });
+        
+        document.getElementById('addTabBtn').addEventListener('click', function() {
+            if (!currentToolbox) {
+                alert('请先创建工具箱');
+                return;
+            }
+            
+            const tabNames = ['高级工具', '收藏夹', '自定义功能', '扩展模块', '实用程序', '系统设置', '用户管理'];
+            const randomName = tabNames[Math.floor(Math.random() * tabNames.length)];
+            const tabId = 'tab' + (Object.keys(currentToolbox.tabs).length + 1);
+            
+            currentToolbox.addTab(tabId, randomName);
+            this.innerHTML = '<i>✅</i> 已添加';
+            setTimeout(() => this.innerHTML = '<i>📑</i> 添加标签页', 2000);
+        });
+        
+        document.getElementById('addBtn').addEventListener('click', function() {
+            if (!currentToolbox) {
+                alert('请先创建工具箱');
+                return;
+            }
+            
+            if (!currentToolbox.currentTab) {
+                alert('请先添加标签页');
+                return;
+            }
+            
+            const icons = ['🚀', '✨', '🔮', '🎯', '🔍', '💡', '⭐', '🔧', '⚡', '🔑', '📎', '🔔'];
+            const texts = ['新功能', '高级工具', '自定义', '扩展', '实用程序', '效率工具', '收藏夹', '系统设置', '用户管理'];
+            
+            const randomIcon = icons[Math.floor(Math.random() * icons.length)];
+            const randomText = texts[Math.floor(Math.random() * texts.length)];
+            
+            currentToolbox.addButton(
+                currentToolbox.currentTab, 
+                {icon: randomIcon, text: randomText}, 
+                () => alert(`已使用 ${randomText} 功能`)
+            );
+            
+            this.innerHTML = '<i>✅</i> 已添加';
+            setTimeout(() => this.innerHTML = '<i>🔧</i> 添加工具', 2000);
+        });
+        
+        document.getElementById('removeBtn').addEventListener('click', function() {
+            if (currentToolbox) {
+                currentToolbox.remove();
+                currentToolbox = null;
+                this.innerHTML = '<i>✅</i> 已移除';
+                setTimeout(() => this.innerHTML = '<i>🗑️</i> 移除工具箱', 2000);
+            } else {
+                alert('工具箱未创建');
+            }
+        });
+        
+        // 初始化复选框状态
+        document.getElementById('widthFixed').checked = ToolboxDemo.fixedWidth.enabled;
+        document.getElementById('heightFixed').checked = ToolboxDemo.fixedHeight.enabled;
+        document.getElementById('hideTitle').checked = ToolboxDemo.hideTitleWhenCollapsed;
+    </script>
+</body>
+</html>
