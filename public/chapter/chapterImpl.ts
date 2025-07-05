@@ -324,6 +324,20 @@ window.addEventListener('DOMContentLoaded', async () => {
             alert('删除章节失败，请稍后重试。');
         }
     });
+    const gotoHistoryBtn = document.getElementById('gotoHistoryBtn');
+    if (!(gotoHistoryBtn instanceof HTMLElement)) {
+        console.warn('查看历史按钮元素不存在，无法绑定事件。');
+        return;
+    };
+    gotoHistoryBtn.addEventListener('click', ()=>{
+        const docName = getQueryParameter('doc_name');
+        if (!docName) {
+            alert('缺少文档 ID，请检查 URL。');
+            return;
+        }
+window.location.href = `/history?doc_name=${encodeURIComponent(docName)}`;
+    });
+    //#endregion
 });
 function backDocIndex() {
     window.location.href = `/docIndex`;

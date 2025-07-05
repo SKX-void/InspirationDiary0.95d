@@ -197,6 +197,17 @@ export default class DB {
                             OLD.content, -- 保存修改前的内容
                             OLD.plain_text);
                     UPDATE pages SET current_version = current_version + 1 WHERE chapter_id = OLD.chapter_id AND page_num = OLD.page_num;
+                END;
+                CREATE TRIGGER save_global_history_del
+                    AFTER DELETE
+                    ON pages
+                    FOR EACH ROW
+                BEGIN
+                    INSERT INTO global_history (chapter_id, page_num, content, plain_text)
+                    VALUES (OLD.chapter_id,
+                            OLD.page_num,
+                            OLD.content, -- 保存修改前的内容
+                            OLD.plain_text);
                 END;`;
     private static readonly __strCreateIndexChapterStructure=`CREATE INDEX idx_chapter_structure ON chapters (sort_order);`;
     private static readonly __strCreateVirtualTableSearch=`

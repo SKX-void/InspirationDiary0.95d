@@ -1,6 +1,6 @@
 // types/quill.d.ts
 declare class Quill {
-    constructor(selector: string | HTMLElement, options: { modules: { toolbar: any }, theme: string });
+    constructor(selector: string | HTMLElement, options: { modules?: { toolbar: any }, theme: string , readOnly?: boolean });
     setContents(content: any): void;
     getContents(): { ops: any[] };
     disable(): void;
@@ -20,6 +20,8 @@ declare class Quill {
     removeFormat(index: number, length: number, format: string): void;
     isEnabled(): boolean;
     history: { undo: () => void, redo: () => void };
+    //clipboard: { dangerouslyPasteHTML(html: string): void, dangerouslyPastePlainText(text: string): void, convert(delta: any): void };
+    update(): void;
 
 }
 

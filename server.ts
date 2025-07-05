@@ -17,6 +17,7 @@ app.use('/', loginRoutes);
 import docRoutes from './routes/doc';
 import titleRoutes from './routes/chapter';
 import pageRoutes from './routes/page';
+import historyRoutes from './routes/history';
 
 const config = {
     "允许游客访问": true, // 是否允许游客访问
@@ -35,6 +36,7 @@ app.use('/api',(req:any,res:any,next)=>{
 app.use('/api/doc', docRoutes);
 app.use('/api/chapter', titleRoutes);
 app.use('/api/page', pageRoutes);
+app.use('/api/history', historyRoutes);
 
 //主页路由
 // 设置静态文件目录（用于提供 index.html）
@@ -67,7 +69,6 @@ app.get('/chapterIndex', (_, res:any) => {
 
 app.use('/pageIndex',express.static(path.join(__dirname, 'public/page')));//外部访问根目录
 app.get('/pageIndex', (_, res:any) => {
-
     res.sendFile(path.join(__dirname, 'public/page', 'pageIndex.html'));
 })
 
@@ -75,6 +76,11 @@ app.use('/editor',express.static(path.join(__dirname, 'public/editor')));//外�
 app.get('/editor', (_, res:any) => {
     res.sendFile(path.join(__dirname, 'public/editor', 'editor.html'));
 })
+
+app.use('/history',express.static(path.join(__dirname, 'public/history')));//外部访问根目录
+app.get('/history', (_, res:any) => {
+    res.sendFile(path.join(__dirname, 'public/history', 'history.html'));
+});
 /* http不兼容cookie会无法登录
 * const httpPort=65002;
 * app.listen(httpPort, '0.0.0.0', () => {

@@ -1,10 +1,10 @@
 class PageIndexApi {
     static handleError(info: string, error?: Error, message?: string) {
-        let errMsg = "no err mag";
+        let errMsg = "无错误信息";
         if (error) errMsg = error.message;
-        let msg = "no msg";
+        let msg = "无消息";
         if (message) msg = message;
-        alert(`handleErrorMSG:\nprefix:${info}+\nerr:${errMsg}\nmsg:${msg}`);
+        alert(`发生错误:\n错误描述:${info}+\n错误:${errMsg}\n消息:${msg}`);
     }
     static getQueryParameter(paramName: string) {
         const queryString = window.location.search;

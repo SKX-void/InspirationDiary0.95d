@@ -506,7 +506,4 @@ window.addEventListener('DOMContentLoaded', async function () {
 
     EditorFRDomBinder.init();
 
-    const toolbox = Toolbox.createDefaultToolbox();
-    // const body = document.querySelector('body');
-    // body?.appendChild(toolbox);
 });
