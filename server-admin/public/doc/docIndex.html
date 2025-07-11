@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文档列表</title>
+    <link rel="stylesheet" href="docIndex.css">
+</head>
+
+<body>
+    <div style="display: flex;">
+        <h1>文档列表</h1>
+
+        <!-- 增加文档按钮 -->
+        <button id="addDocButton" style="height: auto;margin: 30px;">➕</button>
+        <button id="login" style="height: auto;margin: 30px 0 30px 0;">🔑</button>
+    </div>
+    <!-- 文档列表 -->
+    <ul id="docList" class="doc-list"></ul>
+
+    <!-- 增加文档模态框 -->
+    <div id="addDocModal" class="modal">
+        <div class="modal-content">
+            <h2>新建文档</h2>
+            <input type="text" id="newDocInput" placeholder="请输入文档名">
+            <div>
+                <button id="confirmAddDoc" class="confirm">确定</button>
+                <button id="cancelAddDoc" class="cancel">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 修改文档模态框 -->
+    <div id="editDocModal" class="modal">
+        <div class="modal-content">
+            <h2>修改文档</h2>
+            <label for="editDocName">文档名称：</label>
+            <input type="text" id="editDocName" placeholder="请输入新的文档名">
+            <div>
+                <button id="confirmEditDoc" class="confirm">确定</button>
+                <button id="cancelEditDoc" class="cancel">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除文档模态框 -->
+    <div id="deleteDocModal" class="modal">
+        <div class="modal-content">
+            <h2>删除文档</h2>
+            <p id="deleteDocMessage">确定要删除此文档吗？</p>
+            <div>
+                <button id="confirmDeleteDoc" class="confirm">确定</button>
+                <button id="cancelDeleteDoc" class="cancel">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 右键菜单 -->
+    <div id="contextMenu" class="context-menu">
+        <ul>
+            <li id="editDocOption">修改文档</li>
+            <li id="deleteDocOption">删除文档</li>
+            <li id="downloadDocOption">下载docx文档</li>
+            <li id="downloadSqliteOption">下载原始文件</li>
+        </ul>
+    </div>
+    <script src="docImpl.js"></script>
+
+</body>
+
+</html>

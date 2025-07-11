@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文档搜索</title>
+    <link rel="stylesheet" href="search.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">🔍</div>
+                <h1>文档搜索</h1>
+            </div>
+            <div class="controls">
+                <button class="btn btn-outline" id="back-btn">
+                    <i>←</i> 返回
+                </button>
+                <button class="btn" id="new-search-btn">
+                    <i>↻</i> 新搜索
+                </button>
+            </div>
+        </header>
+
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="输入搜索关键词..." value="">
+                <button class="btn" id="search-btn">搜索</button>
+            </div>
+            
+            <div class="search-stats">
+                <div class="stats-info">
+                    <div id="search-stats">找到 <span class="highlight">0</span> 个结果</div>
+                    <div id="keyword-info">关键词: <span class="keyword-highlight">-</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="search-results" id="search-results">
+            <div class="empty-state">
+                <div class="empty-icon">🔍</div>
+                <h3>等待搜索</h3>
+                <p>请输入关键词进行搜索</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="search.js"></script>
+</body>
+</html>

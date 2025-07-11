@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quill Editor</title>
+    <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+    <link href="editor.css" rel="stylesheet">
+    <link href="quillFont.css" rel="stylesheet">
+</head>
+
+<body>
+    <div style="display: flex;">
+        <h1 id="title">Quill Editor</h1>
+        <button id="back-title-btn" style="display:block; height: 30px; width: 30px ; margin: 25px;">⬅</button>
+
+    </div>
+
+    <!-- 页码 -->
+    <div class="pagination-controls" id="pagination-controls">
+        <button id="prev-page-btn">◁</button>
+        <input type="text" pattern="\d*" id="page-input" min="1" placeholder="页码" style="width: 5em;">
+        <span id="total-pages">/ 总页数</span>
+        <button id="next-page-btn">▷</button>
+        <button id="openFindBtn">🔍</button>
+        <span id="textCount">🖊️：0 字符 </span>
+    </div>
+
+    <!-- Quill Editor -->
+    <div id="editor-container" class="editor-container"></div>
+
+    <!-- Actions -->
+    <div>
+        <input type="checkbox" id="hide-toolbar-checkbox">
+        <label for="hide-toolbar-checkbox" title="隐藏工具栏">⬜</label>
+    </div>
+
+    <div id="findReplaceModal" class="modal">
+        <div>
+            <span class="modal-header" id="moveFRDiv"> ||| </span>
+            <span id="findBlock">
+                <label for="findInput">查找:</label>
+                <input type="text" id="findInput">
+            </span>
+            <span class="close" id="closeFindReplaceBtn">&times;</span>
+        </div>
+        <span id="findBtns">
+            <button id="findPreviousBtn" title="查找上一个">▲</button><!-- &#x2227; -->
+            <button id="findNextBtn" title="查找下一个">▼</button><!--&#x2228;-->
+        </span>
+    </div>
+    <script src="https://cdn.quilljs.com/1.3.7/quill.js"></script>
+    <script src="pageImpl.js"></script>
+    <script src="editor.js"></script>
+</body>
+
+</html>

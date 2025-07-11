@@ -1,0 +1,14 @@
+{
+  "sqltools.useNodeRuntime": true,
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "driver": "SQLite",
+      "name": "main",
+      "database": "${workspaceFolder:PWWeb}/identifier.sqlite"
+    }
+  ]
+  ,
+  "javascript.suggest.autoImports": true,
+
+}

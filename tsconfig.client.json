@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "module": "ES6", // 必须和 moduleResolution 一致
+    "target": "es2022", // 编译目标      // 编译成现代 JS
+    "outDir": ".", // 输出到源目录（保持位置不变）
+    "rootDir": ".", // 根目录
+    "strict": true, // 启用严格类型检查
+    "esModuleInterop": true, // 兼容 ES 模块
+    "skipLibCheck": true // 跳过库检查（可选）
+  },
+  "include": [
+    "server-customer/public/**/*.ts",
+    "server-admin/public/**/*.ts",
+    "types/**/*.ts"
+  ], // 编译所有子目录的 .ts 文件
+  "exclude": [
+    "node_modules"
+  ] // 排除 node_modules
+}

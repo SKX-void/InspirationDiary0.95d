@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quill Editor</title>
+    <link href="https://cdn.quilljs.com/1.3.7/quill.snow.css" rel="stylesheet">
+    <link href="editor.css" rel="stylesheet">
+    <link href="quillFont.css" rel="stylesheet">
+</head>
+
+<body>
+    <div style="display: flex;">
+        <h1 id="title">Quill Editor</h1>
+        <button id="back-title-btn" style="display:block; height: 30px; width: 30px ; margin: 25px;">⬅</button>
+        <button id="login" style="height: 30px; width: 30px ; margin:25px 25px 25px 0;">🔑</button>
+
+    </div>
+
+    <!-- 页码 -->
+    <div class="pagination-controls" id="pagination-controls">
+        <button id="prev-page-btn">◁</button>
+        <input type="text" pattern="\d*" id="page-input" min="1" placeholder="页码" style="width: 5em;">
+        <span id="total-pages">/ 总页数</span>
+        <button id="next-page-btn">▷</button>
+        <button id="insert-page-btn" title="插入新页面">➕</button>
+        <button id="delete-page-btn" title="删除当前页面">🗑️</button>
+        <button id="auto-cut-btn" title="自动分页">⚙️</button>
+        <label for="auto-cut-input" title="分页最大字符数">⚙️:</label><input id="auto-cut-input" min="1" value="5000"
+            style="width: 4em;" type="text" pattern="\d*">
+        <button id="openFindBtn">🔍</button>
+        <button id="openFindReplaceBtn">🔄</button>
+        <span id="textCount">🖊️：0 字符 </span>
+        <span id="textChange" style="margin-left: 20px;">💾：✅</span>
+        <button id="quill-undo-btn" title="撤销">⟲</button>
+        <button id="quill-redo-btn" title="重做">⟳</button>
+    </div>
+
+    <!-- Quill Editor -->
+    <div id="editor-container" class="editor-container"></div>
+
+    <!-- Actions -->
+    <div>
+        <button id="save-btn" title="保存">📤</button>
+        <input type="checkbox" id="hide-toolbar-checkbox">
+        <label for="hide-toolbar-checkbox" title="隐藏工具栏">⬜</label>
+    </div>
+
+    <div id="findReplaceModal" class="modal">
+        <div>
+            <span class="modal-header" id="moveFRDiv"> ||| </span>
+            <span id="findBlock">
+                <label for="findInput">查找:</label>
+                <input type="text" id="findInput">
+            </span>
+            <span class="close" id="closeFindReplaceBtn">&times;</span>
+        </div>
+        <div id="replaceBlock">
+            <label for="replaceInput">替换为:</label>
+            <input type="text" id="replaceInput">
+        </div>
+        <span id="findBtns">
+            <button id="findPreviousBtn" title="查找上一个">▲</button><!-- &#x2227; -->
+            <button id="findNextBtn" title="查找下一个">▼</button><!--&#x2228;-->
+        </span>
+        <span id="replaceBtns">
+            <button id="replaceBtn" title="替换">🔄</button>
+            <button id="replaceAllBtn" title="全部替换">🔁</button>
+        </span>
+    </div>
+    <div id="toolBox" class="toolBox"></div>
+
+    <script src="https://cdn.quilljs.com/1.3.7/quill.js"></script>
+    <script src="pageImpl.js"></script>
+    <script src="editor.js"></script>
+</body>
+
+</html>

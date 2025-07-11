@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>章节列表</title>
+    <link href="chapterIndex.css" rel="stylesheet">
+
+</head>
+
+<body>
+    <div style="display: flex;">
+        <h1>章节列表</h1>
+        <button id="backDocIndexBtn"            style="height: auto; margin:30px;">⬅</button>
+        <button id="addChapterButton" style="height: auto;margin: 30px 0 30px 0;" title="新增章节">➕</button>
+        <button id="gotoHistoryBtn" style="height: auto;margin: 30px 0 30px 0;" title="查看历史记录">📋</button>
+        <button id="searchBtn" style="height: auto;margin: 30px 0 30px 0;" title="全文搜索">🔍</button>
+    </div>
+
+    <!-- 增加章节按钮 -->
+
+
+    <!-- 章节列表 -->
+    <ul id="chapterList" class="chapter-list"></ul>
+
+    <!-- 增加章节模态框 -->
+    <div id="addChapterModal" class="modal">
+        <div class="modal-content">
+            <h2>新建章节</h2>
+            <input type="text" id="newChapterInput" placeholder="请输入章节名">
+            <div>
+                <button id="confirmAddChapter" class="confirm">确定</button>
+                <button id="cancelAddChapter" class="cancel">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 修改章节模态框 -->
+    <div id="editChapterModal" class="modal">
+        <div class="modal-content">
+            <h2>修改章节</h2>
+            <label for="editChapterId">章节 ID：</label>
+            <input type="text" id="editChapterId" disabled>
+            <label for="editTitle">章节名称：</label>
+            <input type="text" id="editTitle" placeholder="请输入新的章节名">
+            <label for="editSortOrder">排序序号：</label>
+            <input type="text" id="editSortOrder">
+            <div>
+                <button id="confirmEditChapter" class="confirm">确定</button>
+                <button id="cancelEditChapter" class="cancel">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除章节模态框 -->
+    <div id="deleteChapterModal" class="modal">
+        <div class="modal-content">
+            <h2>删除章节</h2>
+            <p id="deleteChapterMessage">确定要删除此章节吗？</p>
+            <div>
+                <button id="confirmDeleteChapter" class="confirm">确定</button>
+                <button id="cancelDeleteChapter" class="cancel">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 右键菜单 -->
+    <div id="contextMenu" class="context-menu">
+        <ul>
+            <li id="editChapterOption">修改章节</li>
+            <li id="deleteChapterOption">删除章节</li>
+        </ul>
+    </div>
+
+    <script src="chapterImpl.js"></script>
+</body>
+
+</html>

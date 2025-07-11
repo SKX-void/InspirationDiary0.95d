@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文档列表</title>
+    <link rel="stylesheet" href="docIndex.css">
+</head>
+
+<body>
+    <div style="display: flex;">
+        <h1>文档列表</h1>
+    </div>
+    <!-- 文档列表 -->
+    <ul id="docList" class="doc-list"></ul>
+
+    <!-- 右键菜单 -->
+    <div id="contextMenu" class="context-menu">
+        <ul>
+            <li id="downloadDocOption">下载docx文档</li>
+            <li id="downloadSqliteOption">下载原始文件</li>
+        </ul>
+    </div>
+    <script src="docImpl.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,7 @@
+/node_modules/
+/.idea/
+/DB/doc/*.sqlite
+/identifier.sqlite
+/web/private/demo/
+/server-admin/**/*.js
+/server-customer/**/*.js

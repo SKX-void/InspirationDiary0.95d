@@ -1,0 +1,63 @@
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    height: 95vh;
+}
+.editor-container {
+    flex: 1;
+    overflow: auto;
+
+}
+.form-group {
+    margin-bottom: 15px;
+}
+.hidden {
+    display: none;
+}
+
+/* findReplaceModal */
+#findModal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      top: 20px;
+      right: 20px;
+      background-color: white;
+      border: 1px solid #ccc;
+      padding: 5px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      cursor: default;
+      width: 320px;
+    }
+#findReplaceModal{
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      top: 20px;
+      right: 20px;
+      background-color: white;
+      border: 1px solid #ccc;
+      padding: 5px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      cursor: default;
+      width: 280px;
+    }
+    .modal-header {
+      cursor: move;
+    }
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+    }
+    .highlight {
+      background-color: yellow;
+    }
