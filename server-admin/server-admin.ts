@@ -18,11 +18,9 @@ import titleRoutes from './routes/chapter';
 import pageRoutes from './routes/page';
 import historyRoutes from './routes/history';
 
-const config = {
-    "无登录调试模式": true, // 是否开启调试模式，需要登录才能访问
-}
+import Admin from './config'
 app.use('/api',(req:any,res:any,next)=>{
-    if (config["无登录调试模式"] || (req.session.user && (req.session.level > 0))) {
+    if (Admin.config["无登录调试模式"] || (req.session.user && (req.session.level > 0))) {
         return next(); // 已登录，放行所有请求
     }
     return res.status(401).json({err:"未登录"});
@@ -33,21 +31,15 @@ app.use('/api/chapter', titleRoutes);
 app.use('/api/page', pageRoutes);
 app.use('/api/history', historyRoutes);
 
-//主页路由
-// 设置静态文件目录（用于提供 index.html）
-// app.get('/', (req:any, res:any) => {
-//     if (!(config["无登录调试模式"] || req.session.user)) {
-//         res.redirect('/login');
-//     } else {
-//         res.redirect('/docIndex');//重定向
-//     }
-// });
 function loginCheck(req:any,res:any,next:any){
-    if (config["无登录调试模式"] || req.session.user) {
+    if (Admin.config["无登录调试模式"] || req.session.user) {
         return next(); // 已登录，放行所有请求
     }
     return res.redirect('/login');
 }
+app.get('/',loginCheck,(_,res)=>{
+    res.redirect('/docIndex');
+})
 //html
 app.use('/login',express.static(path.join(__dirname, 'public/user')));//外部访问根目录
 app.get('/login', (_, res:any) => {
@@ -92,7 +84,6 @@ app.get('/search', (_, res:any) => {
 * app.listen(httpPort, '0.0.0.0', () => {
 *     console.log(`HTTP  server running on http://localhost:${httpPort}`);
 * });
-* const ip6 ='2001:da8:d806:a001::3eaf';
 */
 
 import https from 'https';

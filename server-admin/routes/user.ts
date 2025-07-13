@@ -4,6 +4,7 @@ import session from 'express-session';
 import bodyParser from 'body-parser';
 import crypto from 'crypto';
 import DB from "../../DB/DB";
+import Admin from "../config";
 
 const router = express.Router();
 
@@ -122,6 +123,10 @@ router.get('/logout', (req: express.Request, res) => {
 });
 
 router.get('/login-status', (req: express.Request, res) => {
+    if (Admin.config["无登录调试模式"]){
+        res.json({ login: true, level: 10 });
+        return;
+    }
     if (req.session.user && req.session.user != "none") {
         res.json({ login: true, level: req.session.level });
     } else {

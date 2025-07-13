@@ -76,9 +76,9 @@ router.put('/', async (req: express.Request<{}, {}, { old_doc_name: string, new_
             res.status(500).json({ err: '未知错误' });
         }
     }
-})
+});
+
 router.delete('/', (req: express.Request<{}, {}, { doc_name: string }>, res: any) => {
-    console.log('DELETE doc/');
     const doc_name = decodeURIComponent(req.body.doc_name);
     try {
         if (!fs.existsSync(`../DB/doc/${doc_name}.sqlite`)) {
@@ -104,7 +104,7 @@ router.get('/file', (req: express.Request<{}, {}, {}, { doc_name: string }>, res
     } else {
         res.status(200).download(`../DB/doc/${doc_name}.sqlite`, `${doc_name}.sqlite`);
     }
-})
+});
 
 router.get('/file/docx', (req: express.Request<{}, {}, {}, { doc_name: string, index: boolean }>, res: any) => {
     const doc_name = decodeURIComponent(req.query.doc_name);
@@ -130,5 +130,6 @@ router.get('/file/docx', (req: express.Request<{}, {}, {}, { doc_name: string, i
             fs.unlink(outputPath, () => { });
         });
     });
-})
+});
+
 export default router;
