@@ -1,1 +1,1 @@
-ts-node ./server-admin.ts
+../node_modules/.bin/ts-node ./server-admin.ts

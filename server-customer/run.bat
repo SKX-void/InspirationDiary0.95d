@@ -1,1 +1,1 @@
-ts-node ./server-customer.ts
+./node_modules/.bin/ts-node ./server-customer.ts
