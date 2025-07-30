@@ -9,7 +9,7 @@ class DocApi {
 
     static async getDocumentList() {
         try {
-            const response = await fetch('/api/doc');
+            const response = await fetch('../api/doc');
             const docs = await response.json();
             if (!response.ok) {
                 DocApi.handleError("服务器获取文档列表错误：", new Error(`${response.status}: ${docs.err}`));
@@ -31,7 +31,7 @@ class DocApi {
 
     static async updateDocument(oldDocName: string, newDocName: string) {
         try {
-            const response = await fetch('/api/doc', {
+            const response = await fetch('../api/doc', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ old_doc_name: oldDocName, new_doc_name: newDocName })
@@ -51,7 +51,7 @@ class DocApi {
 
     static async deleteDocument(docName: string) {
         try {
-            const response = await fetch('/api/doc', {
+            const response = await fetch('../api/doc', {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ doc_name: docName })
@@ -72,7 +72,7 @@ class DocApi {
 
     static async insertDocument(docName: string) {
         try {
-            const response = await fetch('/api/doc', {
+            const response = await fetch('../api/doc', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ doc_name: docName })
@@ -106,7 +106,7 @@ class DocApi {
             listItem.className = 'doc-item';
             listItem.textContent = doc.doc_name;
             listItem.addEventListener('click', () => {
-                window.location.href = `/chapterIndex?doc_name=${encodeURIComponent(doc.doc_name)}`;
+                window.location.href = `../chapterIndex?doc_name=${encodeURIComponent(doc.doc_name)}`;
             });
             listItem.dataset.docName = doc.doc_name;
             docListElement.appendChild(listItem);
@@ -311,7 +311,7 @@ class DocDomBinder {
         };
         downloadDocOption.addEventListener('click', async () => {
             try {
-                const url = `/api/doc/file/docx?doc_name=${encodeURIComponent(currentDocName)}`;
+                const url = `../api/doc/file/docx?doc_name=${encodeURIComponent(currentDocName)}`;
                 const response = await fetch(url);
                 if (!response.ok) {
                     // 网络错误或 4xx/5xx 错误
@@ -346,7 +346,7 @@ class DocDomBinder {
         };
         downloadSqliteOption.addEventListener('click', async () => {
             try {
-                const url = `/api/doc/file?doc_name=${encodeURIComponent(currentDocName)}`;
+                const url = `../api/doc/file?doc_name=${encodeURIComponent(currentDocName)}`;
                 const response = await fetch(url);
                 if (!response.ok) {
                     const json = await response.json();
@@ -383,7 +383,7 @@ class DocDomBinder {
             return;
         };
         loginBtn.addEventListener('click', () => {
-            window.location.href = '/login';
+            window.location.href = '../login';
         });
     }
 }

@@ -10,7 +10,7 @@ class DocApi {
 
     static async getDocumentList() {
         try {
-            const response = await fetch('/api/doc');
+            const response = await fetch('../api/doc');
             const docs = await response.json();
             if (!response.ok) {
                 DocApi.handleError("服务器获取文档列表错误：", new Error(`${response.status}: ${docs.err}`));
@@ -46,7 +46,7 @@ class DocApi {
             listItem.className = 'doc-item';
             listItem.textContent = doc.doc_name;
             listItem.addEventListener('click', () => {
-                window.location.href = `/chapterIndex?doc_name=${encodeURIComponent(doc.doc_name)}`;
+                window.location.href = `../chapterIndex?doc_name=${encodeURIComponent(doc.doc_name)}`;
             });
             listItem.dataset.docName = doc.doc_name;
             docListElement.appendChild(listItem);
@@ -119,7 +119,7 @@ class DocDomBinder {
         };
         downloadDocOption.addEventListener('click', async () => {
             try {
-                const url = `/api/doc/file/docx?doc_name=${encodeURIComponent(currentDocName)}`;
+                const url = `../api/doc/file/docx?doc_name=${encodeURIComponent(currentDocName)}`;
                 const response = await fetch(url);
                 if (!response.ok) {
                     // 网络错误或 4xx/5xx 错误
@@ -154,7 +154,7 @@ class DocDomBinder {
         };
         downloadSqliteOption.addEventListener('click', async () => {
             try {
-                const url = `/api/doc/file?doc_name=${encodeURIComponent(currentDocName)}`;
+                const url = `../api/doc/file?doc_name=${encodeURIComponent(currentDocName)}`;
                 const response = await fetch(url);
                 if (!response.ok) {
                     const json = await response.json();

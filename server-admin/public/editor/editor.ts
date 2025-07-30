@@ -6,9 +6,9 @@ class EditorDomBinder {
             return;
         };
         loginBtn.addEventListener('click', () => {
-            window.location.href = '/login';
+            window.location.href = '../login';
         });
-        const loginStatus = await fetch('/login-status');
+        const loginStatus = await fetch('../login-status');
         if (!loginStatus.ok) {
             console.warn('登录状态检查失败，请检查服务器。');
             return;
@@ -292,7 +292,7 @@ class EditorDomBinder {
             const docName = PageApi.getQueryParameter('doc_name');
             const chapterId = PageApi.getQueryParameter('chapter_id');
             const pageNum = PageApi.getQueryParameter('page_num');
-            window.location.href = `/pageIndex?doc_name=${docName}&chapter_id=${chapterId}&last_page=${pageNum}`;
+            window.location.href = `../pageIndex?doc_name=${docName}&chapter_id=${chapterId}&last_page=${pageNum}`;
             SaveCartoon.onLoaded();
         });
     }

@@ -10,7 +10,7 @@ namespace Chapter {
 
         static async getChapterList(docName: string) {
             try {
-                const response = await fetch(`/api/chapter?doc_name=${encodeURIComponent(docName)}`);
+                const response = await fetch(`../api/chapter?doc_name=${encodeURIComponent(docName)}`);
                 const data = await response.json();
                 if (!response.ok) {
                     ChapterApi.handleError('服务器获取章节列表失败:', new Error(`${response.status}:${data.err}`));
@@ -51,7 +51,7 @@ namespace Chapter {
                 listItem.textContent = chapter.title;
 
                 listItem.addEventListener('click', () => {
-                    window.location.href = `/pageIndex?doc_name=${encodeURIComponent(docName)}&chapter_id=${chapter.chapter_id}`;
+                    window.location.href = `../pageIndex?doc_name=${encodeURIComponent(docName)}&chapter_id=${chapter.chapter_id}`;
                 });
 
                 listItem.dataset.chapterId = String(chapter.chapter_id);
@@ -88,7 +88,7 @@ namespace Chapter {
             return;
         }
         backDocBtn.addEventListener('click', () => {
-            window.location.href = `/docIndex`;
+            window.location.href = `../docIndex`;
         });
 
         const searchBtn = document.getElementById('searchBtn');
@@ -102,7 +102,7 @@ namespace Chapter {
                 alert('缺少文档 ID，请检查 URL。');
                 return;
             }
-            window.location.href = `/search?doc_name=${encodeURIComponent(docName)}`;
+            window.location.href = `../search?doc_name=${encodeURIComponent(docName)}`;
         });
         //#endregion
     });

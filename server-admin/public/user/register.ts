@@ -23,7 +23,7 @@ window.addEventListener("DOMContentLoaded",()=>{
                 return;
             }
 
-            const response = await fetch('/user/register', {
+            const response = await fetch('../user/register', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({
@@ -36,7 +36,7 @@ window.addEventListener("DOMContentLoaded",()=>{
             const data = await response.json();
             if (data.success) {
                 alert('注册成功！');
-                window.location.href = '/login';
+                window.location.href = '../login';
             } else {
                 alert('注册失败！' + data.msg);
             }

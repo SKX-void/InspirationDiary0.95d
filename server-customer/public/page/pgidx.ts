@@ -19,7 +19,7 @@ class PageIndexApi {
 
     static async getPageList() {
         try {
-            const response = await fetch(`/api/page/total?doc_name=${encodeURIComponent(PageIndexApi.docName)}&chapter_id=${PageIndexApi.chapterId}`);
+            const response = await fetch(`../api/page/total?doc_name=${encodeURIComponent(PageIndexApi.docName)}&chapter_id=${PageIndexApi.chapterId}`);
             const data = await response.json();
             if (!response.ok) {
                 PageIndexApi.handleError("服务器获取总页数失败:", new Error(`${response.status}: ${data.err}`));
@@ -55,7 +55,7 @@ class PageIndexApi {
             listItem.textContent = i.toString();
 
             listItem.addEventListener('click', () => {
-                window.location.href = `/editor?doc_name=${encodeURIComponent(docName)}&chapter_id=${chapterId}&page_num=${i}`;
+                window.location.href = `../editor?doc_name=${encodeURIComponent(docName)}&chapter_id=${chapterId}&page_num=${i}`;
             });
 
             pageListElement.appendChild(listItem);
@@ -63,7 +63,7 @@ class PageIndexApi {
         // 自动滚动到标记的方块（如果有 lastPage）
     }
     static async appendPage() {
-        const response = await fetch(`/api/page/append?doc_name=${encodeURIComponent(PageIndexApi.docName)}&chapter_id=${PageIndexApi.chapterId}`
+        const response = await fetch(`../api/page/append?doc_name=${encodeURIComponent(PageIndexApi.docName)}&chapter_id=${PageIndexApi.chapterId}`
             , { method: 'POST' }
         );
         const data = await response.json();
@@ -91,7 +91,7 @@ window.addEventListener('DOMContentLoaded', () => {
         return
     };
     backTitleIndexBtn.addEventListener('click', () => {
-        window.location.href = `/chapterIndex?doc_name=${encodeURIComponent(PageIndexApi.docName)}`;
+        window.location.href = `../chapterIndex?doc_name=${encodeURIComponent(PageIndexApi.docName)}`;
     });
 
     const appendPageBtn = document.getElementById('appendPageBtn');

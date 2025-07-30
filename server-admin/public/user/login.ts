@@ -14,7 +14,7 @@ window.addEventListener('DOMContentLoaded', function () {
     const username = unIn.value;
     try {
       const password = await hashPassword(pwIn.value);
-      const response = await fetch('/user/login', {
+      const response = await fetch('../user/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -29,7 +29,7 @@ window.addEventListener('DOMContentLoaded', function () {
       }
       const data = await response.json();
       if (data.success) {
-        window.location.href = '/docIndex';
+        window.location.href = '../docIndex';
       } else {
         alert('登录失败！' + data.msg);
       }

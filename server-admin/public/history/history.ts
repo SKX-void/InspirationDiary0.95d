@@ -16,7 +16,7 @@ class HistoryApi {
     }
     static async getHistoryArray() {
         const docName = HistoryApi.getQueryParameter('doc_name') ?? '';
-        const res = await fetch(`/api/history/total?doc_name=${encodeURIComponent(docName)}`);
+        const res = await fetch(`../api/history/total?doc_name=${encodeURIComponent(docName)}`);
         if (!res.ok) {
             const error = await res.json();
             HistoryApi.handleError('获取历史记录失败', error.err);
@@ -27,7 +27,7 @@ class HistoryApi {
     }
     static async getHistoryPage(historyId: number) {
         const docName = HistoryApi.getQueryParameter('doc_name') ?? '';
-        const res = await fetch(`/api/history/page?doc_name=${encodeURIComponent(docName)}&history_id=${historyId}`);
+        const res = await fetch(`../api/history/page?doc_name=${encodeURIComponent(docName)}&history_id=${historyId}`);
         if (!res.ok) {
             const error = await res.json();
             HistoryApi.handleError('获取历史记录详情失败', error.err);

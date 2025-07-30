@@ -10,7 +10,7 @@ namespace Chapter {
 
         static async insertChapter(docName: string, title: string) {
             try {
-                const response = await fetch(`/api/chapter`, {
+                const response = await fetch(`../api/chapter`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ doc_name: docName, title: title })
@@ -30,7 +30,7 @@ namespace Chapter {
 
         static async updateChapter(docName: string, chapterId: string | number, title: string, sortOrder: number | string) {
             try {
-                const response = await fetch(`/api/chapter`, {
+                const response = await fetch(`../api/chapter`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ doc_name: docName, chapter_id: chapterId, title: title, sort_order: sortOrder })
@@ -50,7 +50,7 @@ namespace Chapter {
 
         static async deleteChapter(docName: string, chapterId: string | number) {
             try {
-                const response = await fetch(`/api/chapter`, {
+                const response = await fetch(`../api/chapter`, {
                     method: 'DELETE',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ doc_name: docName, chapter_id: chapterId })
@@ -70,7 +70,7 @@ namespace Chapter {
 
         static async getChapterList(docName: string) {
             try {
-                const response = await fetch(`/api/chapter?doc_name=${encodeURIComponent(docName)}`);
+                const response = await fetch(`../api/chapter?doc_name=${encodeURIComponent(docName)}`);
                 const data = await response.json();
                 if (!response.ok) {
                     ChapterApi.handleError('服务器获取章节列表失败:', new Error(`${response.status}:${data.err}`));
@@ -111,7 +111,7 @@ namespace Chapter {
                 listItem.textContent = chapter.title;
 
                 listItem.addEventListener('click', () => {
-                    window.location.href = `/pageIndex?doc_name=${encodeURIComponent(docName)}&chapter_id=${chapter.chapter_id}&last_page=${chapter.last_page}`;
+                    window.location.href = `../pageIndex?doc_name=${encodeURIComponent(docName)}&chapter_id=${chapter.chapter_id}&last_page=${chapter.last_page}`;
                 });
 
                 listItem.dataset.chapterId = String(chapter.chapter_id);
@@ -308,7 +308,7 @@ namespace Chapter {
                 alert('缺少文档 ID，请检查 URL。');
                 return;
             }
-            window.location.href = `/history?doc_name=${encodeURIComponent(docName)}`;
+            window.location.href = `../history?doc_name=${encodeURIComponent(docName)}`;
         });
         //#endregion
         const backDocIndexBtn = document.getElementById('backDocIndexBtn');
@@ -317,7 +317,7 @@ namespace Chapter {
             return;
         };
         backDocIndexBtn.addEventListener('click', () => {
-            window.location.href = `/docIndex`;
+            window.location.href = `../docIndex`;
         });
 
         const searchBtn = document.getElementById('searchBtn');
@@ -331,7 +331,7 @@ namespace Chapter {
                 alert('缺少文档 ID，请检查 URL。');
                 return;
             }
-            window.location.href = `/search?doc_name=${encodeURIComponent(docName)}`;
+            window.location.href = `../search?doc_name=${encodeURIComponent(docName)}`;
         });
 
     });

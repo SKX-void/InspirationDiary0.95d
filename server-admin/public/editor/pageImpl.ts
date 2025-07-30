@@ -115,7 +115,7 @@ class PageApi {
 
             pageInput.textContent = checkedPageNum.toString();
             pageInput.value = `${checkedPageNum}`;
-            const response = await fetch(`/api/page?doc_name=${encodeURIComponent(docName)}&chapter_id=${chapterId}&page_num=${checkedPageNum}`);
+            const response = await fetch(`../api/page?doc_name=${encodeURIComponent(docName)}&chapter_id=${chapterId}&page_num=${checkedPageNum}`);
             const data = await response.json();
             if (!response.ok) {
                 QuillObj.quill.setText("加载页面失败！" + data.err);
@@ -155,7 +155,7 @@ class PageApi {
             console.error("缺少必要参数 doc_name, chapter_id, page_num");
             return;
         }
-        const response = await fetch(`/api/page`, {
+        const response = await fetch(`../api/page`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -186,7 +186,7 @@ class PageApi {
             return;
         }
         try {
-            const response = await fetch(`/api/page`, {
+            const response = await fetch(`../api/page`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json'
@@ -237,7 +237,7 @@ class PageApi {
             const text = QuillObj.quill.getText();
             const selection = QuillObj.quill.getSelection();
             const last_local = selection ? selection.index : 0;
-            const response = await fetch(`/api/page`, {
+            const response = await fetch(`../api/page`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -267,7 +267,7 @@ class PageApi {
             };
             textChangeElement.textContent = '💾：✅';
             SaveCartoon.onSaveSuccess();
-            const newVersion = await fetch(`/api/page/version?doc_name=${encodeURIComponent(docName)}&chapter_id=${encodeURIComponent(chapterId)}&page_num=${encodeURIComponent(pageNum)}}`);
+            const newVersion = await fetch(`../api/page/version?doc_name=${encodeURIComponent(docName)}&chapter_id=${encodeURIComponent(chapterId)}&page_num=${encodeURIComponent(pageNum)}}`);
             if (newVersion.ok) {
                 const json = await newVersion.json();
                 QuillObj.quillTextVersion.value = json.current_version;
@@ -308,7 +308,7 @@ class PageApi {
             return
         };
         try {
-            const response = await fetch(`/api/page/total?doc_name=${encodeURIComponent(docName)}&chapter_id=${chapterId}`);
+            const response = await fetch(`../api/page/total?doc_name=${encodeURIComponent(docName)}&chapter_id=${chapterId}`);
             const data = await response.json();
 
             if (!response.ok) {
@@ -337,7 +337,7 @@ class PageApi {
             return
         };
         try {
-            const response = await fetch(`/api/chapter/last-page`, {
+            const response = await fetch(`../api/chapter/last-page`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -407,7 +407,7 @@ class PageApi {
         return { ops: resultDelta };
     }
     private static async insertFullPageAtEndOf(docName: string, chapterId: number, currentPage: number, rtfBytes: { ops: any[]; }, text: string, lastLocal: number) {
-        const response = await fetch(`/api/page`, {
+        const response = await fetch(`../api/page`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

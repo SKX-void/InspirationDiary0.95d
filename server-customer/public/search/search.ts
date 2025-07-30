@@ -57,7 +57,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const docName = getQueryParam('doc_name') || 'default';
 
         // 调用API执行搜索
-        const response = await fetch(`/api/page/search?doc_name=${encodeURIComponent(docName)}&keyword=${encodeURIComponent(keyword)}`);
+        const response = await fetch(`../api/page/search?doc_name=${encodeURIComponent(docName)}&keyword=${encodeURIComponent(keyword)}`);
         if (!response.ok) {
             const errorJson = await response.json();
             console.error('搜索失败:', errorJson.err);
@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', function () {
         results.forEach((result) => {
             const resultCard = document.createElement('a');
             resultCard.className = 'search-card';
-            resultCard.href = `/editor?doc_name=${getQueryParam('doc_name')}&chapter_id=${result.chapter_id}&page_num=${result.page_num}`;
+            resultCard.href = `../editor?doc_name=${getQueryParam('doc_name')}&chapter_id=${result.chapter_id}&page_num=${result.page_num}`;
 
             // 高亮处理关键词
             let previewHTML = result.preview;

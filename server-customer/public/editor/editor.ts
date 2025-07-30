@@ -59,7 +59,7 @@ namespace Editor {
 
                 pageInput.textContent = checkedPageNum.toString();
                 pageInput.value = `${checkedPageNum}`;
-                const response = await fetch(`/api/page?doc_name=${encodeURIComponent(docName)}&chapter_id=${chapterId}&page_num=${checkedPageNum}`);
+                const response = await fetch(`../api/page?doc_name=${encodeURIComponent(docName)}&chapter_id=${chapterId}&page_num=${checkedPageNum}`);
                 const data = await response.json();
                 if (!response.ok) {
                     QuillObj.quill.setText("加载页面失败！" + data.err);
@@ -107,7 +107,7 @@ namespace Editor {
                 return
             };
             try {
-                const response = await fetch(`/api/page/total?doc_name=${encodeURIComponent(docName)}&chapter_id=${chapterId}`);
+                const response = await fetch(`../api/page/total?doc_name=${encodeURIComponent(docName)}&chapter_id=${chapterId}`);
                 const data = await response.json();
 
                 if (!response.ok) {
@@ -357,7 +357,7 @@ namespace Editor {
                 const docName = PageApi.getQueryParameter('doc_name');
                 const chapterId = PageApi.getQueryParameter('chapter_id');
                 const pageNum = PageApi.getQueryParameter('page_num');
-                window.location.href = `/pageIndex?doc_name=${docName}&chapter_id=${chapterId}&last_page=${pageNum}`;
+                window.location.href = `../pageIndex?doc_name=${docName}&chapter_id=${chapterId}&last_page=${pageNum}`;
                 SaveCartoon.onLoaded();
             });
         }
