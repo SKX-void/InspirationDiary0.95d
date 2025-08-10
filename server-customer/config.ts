@@ -10,5 +10,5 @@ export default Customer;
 
 
 export const enum serverPrefix {
-  value = "/pwweb-server"
+  value = "/pwweb-server-c"
 }
