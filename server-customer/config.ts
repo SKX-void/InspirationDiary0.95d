@@ -7,3 +7,8 @@ class Customer {
 }
 
 export default Customer;
+
+
+export const enum serverPrefix {
+  value = "/pwweb-server"
+}

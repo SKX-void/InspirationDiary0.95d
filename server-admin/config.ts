@@ -4,3 +4,7 @@ class Admin{
     }
 }
 export default Admin;
+
+export const enum serverPrefix {
+  value = "/pwweb-server"
+}

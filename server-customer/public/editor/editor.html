@@ -23,6 +23,7 @@
         <input type="text" pattern="\d*" id="page-input" min="1" placeholder="页码" style="width: 5em;">
         <span id="total-pages">/ 总页数</span>
         <button id="next-page-btn">▷</button>
+            style="width: 4em;" type="text" pattern="\d*">
         <button id="openFindBtn">🔍</button>
         <span id="textCount">🖊️：0 字符 </span>
     </div>
@@ -50,9 +51,10 @@
             <button id="findNextBtn" title="查找下一个">▼</button><!--&#x2228;-->
         </span>
     </div>
+    <div id="toolBox" class="toolBox"></div>
+
     <script src="https://cdn.quilljs.com/1.3.7/quill.js"></script>
-    <script src="pageImpl.js"></script>
-    <script src="editor.js"></script>
+    <script type="module" src="editor.js"></script>
 </body>
 
 </html>

@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "ES6", // 必须和 moduleResolution 一致
+    "module": "es2022", // 必须和 moduleResolution 一致
     "target": "es2022", // 编译目标      // 编译成现代 JS
     "outDir": ".", // 输出到源目录（保持位置不变）
     "rootDir": ".", // 根目录
@@ -14,6 +14,7 @@
     "types/**/*.ts"
   ], // 编译所有子目录的 .ts 文件
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "types/server-prefix.ts"
   ] // 排除 node_modules
 }

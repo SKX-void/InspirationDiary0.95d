@@ -1,3 +1,4 @@
+import { serverPrefix } from "../../config";
 class DocApi {
     static handleError(info: string, error?: Error, message?: string) {
         let errMsg = "no err mag";
@@ -9,7 +10,7 @@ class DocApi {
 
     static async getDocumentList() {
         try {
-            const response = await fetch('/api/doc');
+            const response = await fetch(`${serverPrefix.value}/api/doc`);
             const docs = await response.json();
             if (!response.ok) {
                 DocApi.handleError("服务器获取文档列表错误：", new Error(`${response.status}: ${docs.err}`));
@@ -31,7 +32,7 @@ class DocApi {
 
     static async updateDocument(oldDocName: string, newDocName: string) {
         try {
-            const response = await fetch('/api/doc', {
+            const response = await fetch(`${serverPrefix.value}/api/doc`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ old_doc_name: oldDocName, new_doc_name: newDocName })
@@ -51,7 +52,7 @@ class DocApi {
 
     static async deleteDocument(docName: string) {
         try {
-            const response = await fetch('/api/doc', {
+            const response = await fetch(`${serverPrefix.value}/api/doc`, {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ doc_name: docName })
@@ -72,7 +73,7 @@ class DocApi {
 
     static async insertDocument(docName: string) {
         try {
-            const response = await fetch('/api/doc', {
+            const response = await fetch(`${serverPrefix.value}/api/doc`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ doc_name: docName })
@@ -106,7 +107,7 @@ class DocApi {
             listItem.className = 'doc-item';
             listItem.textContent = doc.doc_name;
             listItem.addEventListener('click', () => {
-                window.location.href = `/chapterIndex?doc_name=${encodeURIComponent(doc.doc_name)}`;
+                window.location.href = `${serverPrefix.value}/chapterIndex?doc_name=${encodeURIComponent(doc.doc_name)}`;
             });
             listItem.dataset.docName = doc.doc_name;
             docListElement.appendChild(listItem);
@@ -192,17 +193,9 @@ class DocDomBinder {
     static contextMenu() {
         // 右键菜单相关逻辑
         let currentDocName: string = "";
-        const contextMenu = document.getElementById('contextMenu');
-        if (!(contextMenu instanceof HTMLElement)) {
-            console.warn('右键菜单元素不存在，无法渲染右键菜单。');
-            return
-        };
+        const contextMenu = document.getElementById('contextMenu') as HTMLElement;
         document.addEventListener('contextmenu', (event) => {
-            const target = event.target;
-            if (!(target instanceof HTMLElement)) {
-                console.warn('右键菜单目标元素不存在，无法渲染右键菜单。');
-                return;
-            };
+            const target = event.target as HTMLElement;
             if (target.classList.contains('doc-item')) {
                 event.preventDefault();
                 currentDocName = target.dataset.docName ?? "";
@@ -218,36 +211,22 @@ class DocDomBinder {
             contextMenu.style.display = 'none';
         });
 
-        const editDocOption = document.getElementById('editDocOption');
-        const editDocName = document.getElementById('editDocName');
-        const editDocModal = document.getElementById('editDocModal');
-        if (!(editDocOption instanceof HTMLElement
-            && editDocName instanceof HTMLInputElement
-            && editDocModal instanceof HTMLElement)) {
-            console.warn('编辑文档元素不存在，无法绑定事件。');
-            return
-        };
+        const editDocOption = document.getElementById('editDocOption') as HTMLElement;
+        const editDocName = document.getElementById('editDocName') as HTMLInputElement;
+        const editDocModal = document.getElementById('editDocModal') as HTMLElement;
         editDocOption.addEventListener('click', () => {
             editDocName.value = currentDocName;
             editDocModal.style.display = 'block';
             contextMenu.style.display = 'none';
         });
 
-        const cancelEditDoc = document.getElementById('cancelEditDoc');
-        if (!(cancelEditDoc instanceof HTMLElement)) {
-            console.warn('取消编辑文档按钮元素不存在，无法绑定事件。');
-            return;
-        };
+        const cancelEditDoc = document.getElementById('cancelEditDoc') as HTMLElement;
         cancelEditDoc.addEventListener('click', () => {
             editDocModal.style.display = 'none';
             editDocName.value = '';
         });
 
-        const confirmEditDoc = document.getElementById('confirmEditDoc');
-        if (!(confirmEditDoc instanceof HTMLElement)) {
-            console.warn('确认编辑文档按钮元素不存在，无法绑定事件。');
-            return;
-        };
+        const confirmEditDoc = document.getElementById('confirmEditDoc') as HTMLElement;
         confirmEditDoc.addEventListener('click', async () => {
             const newDocName = editDocName.value.trim();
             if (!newDocName) {
@@ -264,14 +243,8 @@ class DocDomBinder {
             }
         });
 
-        const deleteDocOption = document.getElementById('deleteDocOption');
-        const deleteDocModal = document.getElementById('deleteDocModal');
-        if (!(deleteDocOption instanceof HTMLElement
-            && deleteDocModal instanceof HTMLElement)) {
-            console.warn('删除文档元素不存在，无法渲染右键菜单。');
-            return;
-        };
-
+        const deleteDocOption = document.getElementById('deleteDocOption') as HTMLElement;
+        const deleteDocModal = document.getElementById('deleteDocModal') as HTMLElement;
         deleteDocOption.addEventListener('click', () => {
             const deleteDocMessage = document.getElementById('deleteDocMessage');
             if (!(deleteDocMessage instanceof HTMLElement)) {
@@ -283,13 +256,8 @@ class DocDomBinder {
             contextMenu.style.display = 'none';
         });
 
-        const cancelDeleteDoc = document.getElementById('cancelDeleteDoc');
-        const confirmDeleteDoc = document.getElementById('confirmDeleteDoc');
-        if (!(cancelDeleteDoc instanceof HTMLElement
-            && confirmDeleteDoc instanceof HTMLElement)) {
-            console.warn('删除文档按钮元素不存在，无法绑定事件。');
-            return;
-        };
+        const cancelDeleteDoc = document.getElementById('cancelDeleteDoc') as HTMLElement;
+        const confirmDeleteDoc = document.getElementById('confirmDeleteDoc') as HTMLElement;
         cancelDeleteDoc.addEventListener('click', () => {
             deleteDocModal.style.display = 'none';
         });
@@ -304,14 +272,10 @@ class DocDomBinder {
             }
         });
 
-        const downloadDocOption = document.getElementById('downloadDocOption');
-        if (!(downloadDocOption instanceof HTMLElement)) {
-            console.warn('下载文档元素不存在，无法绑定事件。');
-            return;
-        };
+        const downloadDocOption = document.getElementById('downloadDocOption') as HTMLElement;
         downloadDocOption.addEventListener('click', async () => {
             try {
-                const url = `/api/doc/file/docx?doc_name=${encodeURIComponent(currentDocName)}`;
+                const url = `${serverPrefix.value}/api/doc/file/docx?doc_name=${encodeURIComponent(currentDocName)}`;
                 const response = await fetch(url);
                 if (!response.ok) {
                     // 网络错误或 4xx/5xx 错误
@@ -339,14 +303,10 @@ class DocDomBinder {
             }
         });
 
-        const downloadSqliteOption = document.getElementById('downloadSqliteOption');
-        if (!(downloadSqliteOption instanceof HTMLElement)) {
-            console.warn('下载原始文件元素不存在，无法绑定事件。');
-            return;
-        };
+        const downloadSqliteOption = document.getElementById('downloadSqliteOption') as HTMLElement;
         downloadSqliteOption.addEventListener('click', async () => {
             try {
-                const url = `/api/doc/file?doc_name=${encodeURIComponent(currentDocName)}`;
+                const url = `${serverPrefix.value}/api/doc/file?doc_name=${encodeURIComponent(currentDocName)}`;
                 const response = await fetch(url);
                 if (!response.ok) {
                     const json = await response.json();
@@ -377,19 +337,15 @@ class DocDomBinder {
     }
 
     static loginDiv() {
-        const loginBtn = document.getElementById('login');
-        if (!(loginBtn instanceof HTMLElement)) {
-            console.warn('登录按钮元素不存在，无法绑定事件。');
-            return;
-        };
+        const loginBtn = document.getElementById('login') as HTMLElement;
         loginBtn.addEventListener('click', () => {
-            window.location.href = '/login';
+            window.location.href = `${serverPrefix.value}/login`;
         });
     }
 }
-
+//#region html
 window.addEventListener('DOMContentLoaded', async () => {
-    //#region html
+    
     await DocApi.getDocumentList();
     DocDomBinder.addDocDiv();
     DocDomBinder.contextMenu();
